@@ -1,0 +1,13 @@
+# Caller workflow — triggers the Autonomous SDLC reusable pipeline
+name: Autonomous SDLC
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  autonomous-sdlc:
+    uses: taylor-curran/autonomous-sdlc-platform/.github/workflows/autonomous-sdlc.yml@main
+    secrets: inherit
