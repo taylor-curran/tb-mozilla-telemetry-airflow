@@ -18,12 +18,14 @@ Relies on the [`bq2stfp` container defined in `docker-etl`](https://github.com/m
 and credentials stored in the `adm_sftp` connection.
 """
 
+OWNER_EMAIL = "llisi@mozilla.com"
+
 default_args = {
-    "owner": "llisi@mozilla.com",
+    "owner": OWNER_EMAIL,
     "start_date": datetime.datetime(2025, 6, 23),
     "email": [
         "telemetry-alerts@mozilla.com",
-        "llisi@mozilla.com",
+        OWNER_EMAIL,
     ],
     "email_on_failure": True,
     "email_on_retry": True,
@@ -75,7 +77,7 @@ with DAG(
         },
         secrets=[adm_sftp_secret],
         email=[
-            "llisi@mozilla.com",
+            OWNER_EMAIL,
             "telemetry-alerts@mozilla.com",
         ],
     )

@@ -34,6 +34,9 @@ default_args = {
 
 tags = [Tag.ImpactTier.tier_3]
 
+PUBLIC_DATA_REPORT_IMAGE = "us-docker.pkg.dev/moz-fx-data-artifacts-prod/firefox-public-data-report-etl/firefox-public-data-report-etl:latest"
+PUBLIC_DATA_REPORT_ENTRYPOINT = "public_data_report.cli"
+
 dag = DAG(
     "firefox_public_data_report",
     default_args=default_args,
@@ -69,10 +72,10 @@ hardware_report_query = bigquery_etl_query(
 hardware_report_export = GKEPodOperator(
     task_id="hardware_report_export",
     name="hardware_report_export",
-    image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/firefox-public-data-report-etl/firefox-public-data-report-etl:latest",
+    image=PUBLIC_DATA_REPORT_IMAGE,
     arguments=[
         "-m",
-        "public_data_report.cli",
+        PUBLIC_DATA_REPORT_ENTRYPOINT,
         "hardware_report",
         "--date_from",
         "{{ ds }}",
@@ -114,10 +117,10 @@ user_activity = bigquery_etl_query(
 user_activity_usage_behavior_export = GKEPodOperator(
     task_id="user_activity_export",
     name="user_activity_export",
-    image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/firefox-public-data-report-etl/firefox-public-data-report-etl:latest",
+    image=PUBLIC_DATA_REPORT_IMAGE,
     arguments=[
         "-m",
-        "public_data_report.cli",
+        PUBLIC_DATA_REPORT_ENTRYPOINT,
         "user_activity",
         "--bq_table",
         "moz-fx-data-shared-prod.telemetry_derived.public_data_report_user_activity_v1",
@@ -133,10 +136,10 @@ user_activity_usage_behavior_export = GKEPodOperator(
 annotations_export = GKEPodOperator(
     task_id="annotations_export",
     name="annotations_export",
-    image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/firefox-public-data-report-etl/firefox-public-data-report-etl:latest",
+    image=PUBLIC_DATA_REPORT_IMAGE,
     arguments=[
         "-m",
-        "public_data_report.cli",
+        PUBLIC_DATA_REPORT_ENTRYPOINT,
         "annotations",
         "--date_to",
         "{{ ds }}",
