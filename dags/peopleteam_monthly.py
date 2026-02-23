@@ -13,6 +13,10 @@ INCOMING_BUCKET = PROJECT + "-data-incoming-peopleteam-monthly"
 OUTPUT_BUCKET = PROJECT + "-data-peopleteam"
 QUERIES_BUCKET = PROJECT + "-data-etl-queries"
 
+# Name of the Kubernetes Secret resource that holds Airflow GKE credentials.
+# This is a K8s resource identifier, not a credential value.
+AIRFLOW_GKE_K8S_RESOURCE = "airflow-gke-secrets"
+
 # these images were manually copied from moz-fx-data-composer-prod to moz-fx-data-artifacts-prod
 # by mducharme
 DI_IMAGE = (
@@ -25,13 +29,13 @@ QUERIES_IMAGE = (
 WORKDAY_USERNAME = Secret(
     deploy_type="env",
     deploy_target="HR_DASHBOARD_WORKDAY_USERNAME",
-    secret="airflow-gke-secrets",
+    secret=AIRFLOW_GKE_K8S_RESOURCE,
     key="HR_DASHBOARD_WORKDAY_USERNAME",
 )
 WORKDAY_PASSWORD = Secret(
     deploy_type="env",
     deploy_target="HR_DASHBOARD_WORKDAY_PASSWORD",
-    secret="airflow-gke-secrets",
+    secret=AIRFLOW_GKE_K8S_RESOURCE,
     key="HR_DASHBOARD_WORKDAY_PASSWORD",
 )
 
