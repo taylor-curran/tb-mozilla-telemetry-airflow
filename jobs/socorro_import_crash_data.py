@@ -5,7 +5,7 @@ import json
 import logging
 import urllib.request
 from datetime import datetime as dt
-from datetime import timedelta
+from datetime import timedelta, timezone
 
 from pyspark.sql.session import SparkSession
 from pyspark.sql.types import (
@@ -100,6 +100,30 @@ def replace_definitions(schema, definitions):
         raise ValueError(err_msg)
 
 
+def _resolve_type(meta):
+    """Resolve a JSON schema type to a pyspark type and nullable flag."""
+    if "string" in meta["type"]:
+        return StringType(), "null" in meta["type"]
+    if "integer" in meta["type"]:
+        return IntegerType(), "null" in meta["type"]
+    if "boolean" in meta["type"]:
+        return BooleanType(), "null" in meta["type"]
+    if meta["type"] == "array" and "items" not in meta:
+        # Assuming strings in the array
+        return ArrayType(StringType(), False), True
+    if meta["type"] == "array" and "items" in meta:
+        struct = StructType()
+        for row in get_rows(meta["items"]):
+            struct.add(row)
+        return ArrayType(struct), True
+    if meta["type"] == "object":
+        struct = StructType()
+        for row in get_rows(meta):
+            struct.add(row)
+        return struct, True
+    return None, None
+
+
 def get_rows(schema):
     """Map the fields in a JSON schema to corresponding data structures in pyspark."""
 
@@ -112,28 +136,14 @@ def get_rows(schema):
         meta = schema["properties"][prop]
         if "string" in meta["type"]:
             logging.debug(f"{prop!r} allows the type to be String AND Integer")
-            yield StructField(prop, StringType(), "null" in meta["type"])
-        elif "integer" in meta["type"]:
-            yield StructField(prop, IntegerType(), "null" in meta["type"])
-        elif "boolean" in meta["type"]:
-            yield StructField(prop, BooleanType(), "null" in meta["type"])
-        elif meta["type"] == "array" and "items" not in meta:
-            # Assuming strings in the array
-            yield StructField(prop, ArrayType(StringType(), False), True)
-        elif meta["type"] == "array" and "items" in meta:
-            struct = StructType()
-            for row in get_rows(meta["items"]):
-                struct.add(row)
-            yield StructField(prop, ArrayType(struct), True)
-        elif meta["type"] == "object":
-            struct = StructType()
-            for row in get_rows(meta):
-                struct.add(row)
-            yield StructField(prop, struct, True)
-        else:
+
+        field_type, nullable = _resolve_type(meta)
+        if field_type is None:
             err_msg = f"Invalid JSON schema: {str(meta)[:100]}"
             log.error(err_msg)
             raise ValueError(err_msg)
+
+        yield StructField(prop, field_type, nullable)
 
 
 # First fetch from the primary source in gcs as per bug 1312006. We fall back to the github location if this is not available.
@@ -176,7 +186,7 @@ def daterange(start_date, end_date):
 def import_day(source_gcs_path, dest_gcs_path, d, schema, version, num_partitions):
     """Convert JSON data stored in an S3 bucket into parquet, indexed by crash_date."""
 
-    log.info(f"Processing {d}, started at {dt.utcnow()}")
+    log.info(f"Processing {d}, started at {dt.now(tz=timezone.utc)}")
     cur_source_gcs_path = f"{source_gcs_path}/{d}"
     cur_dest_gcs_path = f"{dest_gcs_path}/v{version}/crash_date={d}"
 
@@ -194,7 +204,7 @@ def backfill(start_date_yyyymmdd, schema, version):
 
     """
     start_date = dt.strptime(start_date_yyyymmdd, "%Y%m%d")
-    end_date = dt.utcnow() - timedelta(1)  # yesterday
+    end_date = dt.now(tz=timezone.utc) - timedelta(1)  # yesterday
     for d in daterange(start_date, end_date):
         try:
             import_day(d)
