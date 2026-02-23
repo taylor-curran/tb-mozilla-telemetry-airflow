@@ -15,6 +15,11 @@ from utils.constants import ALLOWED_STATES, FAILED_STATES
 from utils.gcp import bigquery_etl_query
 from utils.tags import Tag
 
+FIREFOX_PUBLIC_DATA_REPORT_ETL_IMAGE = (
+    "us-docker.pkg.dev/moz-fx-data-artifacts-prod/"
+    "firefox-public-data-report-etl/firefox-public-data-report-etl:latest"
+)
+
 default_args = {
     "owner": "bewu@mozilla.com",
     "depends_on_past": False,
@@ -69,7 +74,7 @@ hardware_report_query = bigquery_etl_query(
 hardware_report_export = GKEPodOperator(
     task_id="hardware_report_export",
     name="hardware_report_export",
-    image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/firefox-public-data-report-etl/firefox-public-data-report-etl:latest",
+    image=FIREFOX_PUBLIC_DATA_REPORT_ETL_IMAGE,
     arguments=[
         "-m",
         "public_data_report.cli",
@@ -114,7 +119,7 @@ user_activity = bigquery_etl_query(
 user_activity_usage_behavior_export = GKEPodOperator(
     task_id="user_activity_export",
     name="user_activity_export",
-    image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/firefox-public-data-report-etl/firefox-public-data-report-etl:latest",
+    image=FIREFOX_PUBLIC_DATA_REPORT_ETL_IMAGE,
     arguments=[
         "-m",
         "public_data_report.cli",
@@ -133,7 +138,7 @@ user_activity_usage_behavior_export = GKEPodOperator(
 annotations_export = GKEPodOperator(
     task_id="annotations_export",
     name="annotations_export",
-    image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/firefox-public-data-report-etl/firefox-public-data-report-etl:latest",
+    image=FIREFOX_PUBLIC_DATA_REPORT_ETL_IMAGE,
     arguments=[
         "-m",
         "public_data_report.cli",
