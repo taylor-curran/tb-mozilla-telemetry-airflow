@@ -933,36 +933,34 @@ state_code_stage_failed_of_concern_rdd =     state_code_stage_of_concern_rdd.fil
 
 # Create an RDD of out of date, of concern telemetry ping staged update
 # state failure codes along with a dictionary of the count of the codes.
+def _find_first_positive_code(code_array, version, current_version, ping):
+    """Search a code array for the first positive value and return the result.
+
+    Returns a tuple (code_index, ping) if a positive value is found, or None
+    if no positive value exists in the array.
+    """
+    for code_index, code_value in enumerate(code_array):
+        if code_value > 0:
+            if version == current_version:
+                return code_index, ping
+            return -1, ping
+    return None
+
+
 def state_failure_code_stage_mapper(d):
     ping = d
     current_version = ping.version[0]
+    code_fields = [
+        ping.update_status_error_code_partial_stage,
+        ping.update_status_error_code_complete_stage,
+        ping.update_status_error_code_unknown_stage,
+    ]
     for index, version in enumerate(ping.version):
-        if ping.update_status_error_code_partial_stage is not None:
-            code_index = 0
-            for code_value in ping.update_status_error_code_partial_stage[index]:
-                if code_value > 0:
-                    if version == current_version:
-                        return code_index, ping
-                    return -1, ping
-                code_index += 1
-
-        if ping.update_status_error_code_complete_stage is not None:
-            code_index = 0
-            for code_value in ping.update_status_error_code_complete_stage[index]:
-                if code_value > 0:
-                    if version == current_version:
-                        return code_index, ping
-                    return -1, ping
-                code_index += 1
-
-        if ping.update_status_error_code_unknown_stage is not None:
-            code_index = 0
-            for code_value in ping.update_status_error_code_unknown_stage[index]:
-                if code_value > 0:
-                    if version == current_version:
-                        return code_index, ping
-                    return -1, ping
-                code_index += 1
+        for field in code_fields:
+            if field is not None:
+                result = _find_first_positive_code(field[index], version, current_version, ping)
+                if result is not None:
+                    return result
 
     return -2, ping
 
