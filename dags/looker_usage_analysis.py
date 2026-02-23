@@ -6,7 +6,11 @@ from airflow.providers.cncf.kubernetes.secret import Secret
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
 
-DOCS = """\
+LOOKER_UTILS_IMAGE = "us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest"
+LOOKER_UTILS_CLI = "looker_utils.main"
+DATE_DS_PARAM = "--date={{ ds }}"
+
+DOCS= """\
 # Looker Usage Analysis
 
 *Triage notes*
@@ -66,14 +70,14 @@ with DAG(
         arguments=[
             "python",
             "-m",
-            "looker_utils.main",
+            LOOKER_UTILS_CLI,
             "analyze",
             "--destination_table",
             "moz-fx-data-shared-prod.monitoring_derived.looker_usage_explores_v1",
-            "--date={{ ds }}",
+            DATE_DS_PARAM,
             "explores",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },
@@ -86,14 +90,14 @@ with DAG(
         arguments=[
             "python",
             "-m",
-            "looker_utils.main",
+            LOOKER_UTILS_CLI,
             "analyze",
             "--destination_table",
             "moz-fx-data-shared-prod.monitoring_derived.looker_usage_models_v1",
-            "--date={{ ds }}",
+            DATE_DS_PARAM,
             "models",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },
@@ -106,14 +110,14 @@ with DAG(
         arguments=[
             "python",
             "-m",
-            "looker_utils.main",
+            LOOKER_UTILS_CLI,
             "analyze",
             "--destination_table",
             "moz-fx-data-shared-prod.monitoring_derived.looker_usage_unused_explores_v1",
-            "--date={{ ds }}",
+            DATE_DS_PARAM,
             "unused-explores",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },

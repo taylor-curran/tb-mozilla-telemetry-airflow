@@ -9,7 +9,9 @@ from operators.gcp_container_operator import GKEPodOperator
 from utils.constants import ALLOWED_STATES, FAILED_STATES
 from utils.tags import Tag
 
-DOCS = """\
+OWNER_EMAIL = "llisi@mozilla.com"
+
+DOCS= """\
 Daily data exports of contextual services data aggregates to adMarketplace including DMA (Designated Market Area).
 This is a complementary approach to the near real-time sharing that is implemented
 in gcp-ingestion.
@@ -19,11 +21,11 @@ and credentials stored in the `adm_sftp` connection.
 """
 
 default_args = {
-    "owner": "llisi@mozilla.com",
+    "owner": OWNER_EMAIL,
     "start_date": datetime.datetime(2025, 6, 23),
     "email": [
         "telemetry-alerts@mozilla.com",
-        "llisi@mozilla.com",
+        OWNER_EMAIL,
     ],
     "email_on_failure": True,
     "email_on_retry": True,
@@ -75,7 +77,7 @@ with DAG(
         },
         secrets=[adm_sftp_secret],
         email=[
-            "llisi@mozilla.com",
+            OWNER_EMAIL,
             "telemetry-alerts@mozilla.com",
         ],
     )

@@ -33,6 +33,8 @@ microsoft_store_app_list = Secret(
     key="MICROSOFT_STORE_APP_LIST",
 )
 
+OWNER_EMAIL = "mhirose@mozilla.com"
+
 docs = """
 This DAG runs the daily download of aggregated data from the Microsoft Store API.
 #### Owner
@@ -43,10 +45,10 @@ mhirose@mozilla.com
 """
 
 default_args = {
-    "owner": "mhirose@mozilla.com",
+    "owner": OWNER_EMAIL,
     "start_date": datetime.datetime(2024, 6, 18, 0, 0),
     "end_date": None,
-    "email": ["telemetry-alerts@mozilla.com", "mhirose@mozilla.com"],
+    "email": ["telemetry-alerts@mozilla.com", OWNER_EMAIL],
     "depends_on_past": False,
     "retry_delay": datetime.timedelta(seconds=1800),
     "email_on_failure": True,
@@ -84,6 +86,6 @@ with DAG(
                 "--date={{ macros.ds_add(ds, -3) }}",
             ],
             image="gcr.io/moz-fx-data-airflow-prod-88e0/bigquery-etl:latest",
-            owner="mhirose@mozilla.com",
-            email=["mhirose@mozilla.com", "telemetry-alerts@mozilla.com"],
+                owner=OWNER_EMAIL,
+                email=[OWNER_EMAIL, "telemetry-alerts@mozilla.com"],
         )
