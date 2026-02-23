@@ -16,6 +16,8 @@ from kubernetes.client import models as k8s
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
 
+DATAOPS_ALERTS_EMAIL = "dataops+alerts@mozilla.com"
+
 DOCS = """\
 # Probe Scraper
 
@@ -150,7 +152,7 @@ with DAG(
             "telemetry-alerts@mozilla.com",
             "telemetry-client-dev@mozilla.com",
             "aplacitelli@mozilla.com",
-            "dataops+alerts@mozilla.com",
+            DATAOPS_ALERTS_EMAIL,
             "akomar@mozilla.com",
         ],
         env_vars={"BOTO_PATH": ".gce_boto"},
@@ -189,7 +191,7 @@ with DAG(
                 "telemetry-alerts@mozilla.com",
                 "telemetry-client-dev@mozilla.com",
                 "aplacitelli@mozilla.com",
-                "dataops+alerts@mozilla.com",
+                DATAOPS_ALERTS_EMAIL,
                 "akomar@mozilla.com",
             ],
             env_vars={
@@ -228,7 +230,7 @@ with DAG(
             "telemetry-alerts@mozilla.com",
             "telemetry-client-dev@mozilla.com",
             "aplacitelli@mozilla.com",
-            "dataops+alerts@mozilla.com",
+            DATAOPS_ALERTS_EMAIL,
             "akomar@mozilla.com",
         ],
         env_vars={"BOTO_PATH": ".gce_boto"},
@@ -260,7 +262,7 @@ with DAG(
                 "telemetry-alerts@mozilla.com",
                 "telemetry-client-dev@mozilla.com",
                 "aplacitelli@mozilla.com",
-                "dataops+alerts@mozilla.com",
+                DATAOPS_ALERTS_EMAIL,
                 "akomar@mozilla.com",
             ],
             env_vars={
@@ -304,7 +306,7 @@ with DAG(
     schema_generator = GKEPodOperator(
         email=[
             "akomar@mozilla.com",
-            "dataops+alerts@mozilla.com",
+            DATAOPS_ALERTS_EMAIL,
             "telemetry-alerts@mozilla.com",
         ],
         task_id="mozilla_schema_generator",
@@ -389,7 +391,7 @@ with DAG(
         owner="jrediger@mozilla.com",
         email=[
             "jrediger@mozilla.com",
-            "dataops+alerts@mozilla.com",
+            DATAOPS_ALERTS_EMAIL,
             "telemetry-alerts@mozilla.com",
         ],
         task_id="glean_dictionary_build",

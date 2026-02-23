@@ -6,6 +6,10 @@ from airflow.providers.cncf.kubernetes.secret import Secret
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
 
+LOOKER_UTILS_IMAGE = (
+    "us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest"
+)
+
 DOCS = """\
 # Looker Usage Analysis
 
@@ -73,7 +77,7 @@ with DAG(
             "--date={{ ds }}",
             "explores",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },
@@ -93,7 +97,7 @@ with DAG(
             "--date={{ ds }}",
             "models",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },
@@ -113,7 +117,7 @@ with DAG(
             "--date={{ ds }}",
             "unused-explores",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },

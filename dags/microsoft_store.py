@@ -6,7 +6,9 @@ from airflow.providers.cncf.kubernetes.secret import Secret
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
 
-# Deploy value associated with Microsoft Store keys in k8s secret `airflow-gke-secrets` in environments Microsoft variables.
+MHIROSE_EMAIL = "mhirose@mozilla.com"
+
+# Deploy value associated with Microsoft Store keysin k8s secret `airflow-gke-secrets` in environments Microsoft variables.
 
 microsoft_client_id = Secret(
     deploy_type="env",
@@ -43,10 +45,10 @@ mhirose@mozilla.com
 """
 
 default_args = {
-    "owner": "mhirose@mozilla.com",
+    "owner": MHIROSE_EMAIL,
     "start_date": datetime.datetime(2024, 6, 18, 0, 0),
     "end_date": None,
-    "email": ["telemetry-alerts@mozilla.com", "mhirose@mozilla.com"],
+    "email": ["telemetry-alerts@mozilla.com", MHIROSE_EMAIL],
     "depends_on_past": False,
     "retry_delay": datetime.timedelta(seconds=1800),
     "email_on_failure": True,
@@ -84,6 +86,6 @@ with DAG(
                 "--date={{ macros.ds_add(ds, -3) }}",
             ],
             image="gcr.io/moz-fx-data-airflow-prod-88e0/bigquery-etl:latest",
-            owner="mhirose@mozilla.com",
-            email=["mhirose@mozilla.com", "telemetry-alerts@mozilla.com"],
+            owner=MHIROSE_EMAIL,
+            email=[MHIROSE_EMAIL, "telemetry-alerts@mozilla.com"],
         )
