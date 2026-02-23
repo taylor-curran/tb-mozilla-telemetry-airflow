@@ -272,7 +272,7 @@ with DAG(
             dag=dag,
             **airflow_gke_prod_kwargs,
         )
-        for check_name in("check-expiry", "check-fog-expiry")
+        for check_name in ("check-expiry", "check-fog-expiry")
     ]
     dummy_branch = EmptyOperator(
         task_id="dummy_branch",
