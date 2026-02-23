@@ -29,6 +29,7 @@ function main() {
 
   install_pip
   pip install --upgrade ${PACKAGES}
+  return 0
 }
 
 main
