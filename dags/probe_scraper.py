@@ -55,9 +55,11 @@ click the task that failed, followed by `View Log`. Here, look for `probe-scrape
 
 DEFAULT_LOOKML_GENERATOR_IMAGE_VERSION = "v1.17.0"
 
+OWNER_EMAIL_AKOMAR = "akomar@mozilla.com"
+
 
 default_args = {
-    "owner": "akomar@mozilla.com",
+    "owner": OWNER_EMAIL_AKOMAR,
     "depends_on_past": False,
     "start_date": datetime(2019, 10, 28),
     "email_on_failure": True,
@@ -151,7 +153,7 @@ with DAG(
             "telemetry-client-dev@mozilla.com",
             "aplacitelli@mozilla.com",
             "dataops+alerts@mozilla.com",
-            "akomar@mozilla.com",
+            OWNER_EMAIL_AKOMAR,
         ],
         env_vars={"BOTO_PATH": ".gce_boto"},
         dag=dag,
@@ -190,7 +192,7 @@ with DAG(
                 "telemetry-client-dev@mozilla.com",
                 "aplacitelli@mozilla.com",
                 "dataops+alerts@mozilla.com",
-                "akomar@mozilla.com",
+                OWNER_EMAIL_AKOMAR,
             ],
             env_vars={
                 "BOTO_PATH": ".gce_boto",
@@ -229,7 +231,7 @@ with DAG(
             "telemetry-client-dev@mozilla.com",
             "aplacitelli@mozilla.com",
             "dataops+alerts@mozilla.com",
-            "akomar@mozilla.com",
+            OWNER_EMAIL_AKOMAR,
         ],
         env_vars={"BOTO_PATH": ".gce_boto"},
         dag=dag,
@@ -261,7 +263,7 @@ with DAG(
                 "telemetry-client-dev@mozilla.com",
                 "aplacitelli@mozilla.com",
                 "dataops+alerts@mozilla.com",
-                "akomar@mozilla.com",
+                OWNER_EMAIL_AKOMAR,
             ],
             env_vars={
                 "BOTO_PATH": ".gce_boto",
@@ -303,7 +305,7 @@ with DAG(
 
     schema_generator = GKEPodOperator(
         email=[
-            "akomar@mozilla.com",
+            OWNER_EMAIL_AKOMAR,
             "dataops+alerts@mozilla.com",
             "telemetry-alerts@mozilla.com",
         ],
@@ -334,7 +336,7 @@ with DAG(
             "--bugzilla-api-key",
             "{{ var.value.bugzilla_probe_expiry_bot_api_key }}",
         ],
-        email=["akomar@mozilla.com", "telemetry-alerts@mozilla.com"],
+        email=[OWNER_EMAIL_AKOMAR, "telemetry-alerts@mozilla.com"],
         secrets=[aws_access_key_secret, aws_secret_key_secret],
         dag=dag,
     )
