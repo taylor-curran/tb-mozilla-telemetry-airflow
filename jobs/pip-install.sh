@@ -23,7 +23,7 @@ function install_pip() {
 
 function main() {
   if [[ -z "${PACKAGES}" ]]; then
-    echo "ERROR: Must specify PIP_PACKAGES metadata key"
+    echo "ERROR: Must specify PIP_PACKAGES metadata key" >&2
     exit 1
   fi
 
