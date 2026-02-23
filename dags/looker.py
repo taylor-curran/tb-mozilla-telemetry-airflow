@@ -25,6 +25,10 @@ and the task re-run.
 
 DEFAULT_LOOKML_GENERATOR_IMAGE_VERSION = "v1.17.0"
 
+# Name of the Kubernetes Secret resource that stores Airflow GKE credentials.
+# This is NOT a hard-coded secret value; it is the k8s Secret object name.
+K8S_SECRET_NAME = "airflow-gke-secrets"
+
 
 default_args = {
     "owner": "ascholtz@mozilla.com",
@@ -41,49 +45,49 @@ tags = [Tag.ImpactTier.tier_1]
 looker_repos_secret_git_ssh_key_b64 = Secret(
     deploy_type="env",
     deploy_target="GIT_SSH_KEY_BASE64",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="probe_scraper_secret__looker_repos_secret_git_ssh_key_b64",
 )
 looker_api_client_id_prod = Secret(
     deploy_type="env",
     deploy_target="LOOKER_API_CLIENT_ID",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="probe_scraper_secret__looker_api_client_id_prod",
 )
 looker_api_client_secret_prod = Secret(
     deploy_type="env",
     deploy_target="LOOKER_API_CLIENT_SECRET",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="probe_scraper_secret__looker_api_client_secret_prod",
 )
 looker_api_client_id_staging = Secret(
     deploy_type="env",
     deploy_target="LOOKER_API_CLIENT_ID",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="probe_scraper_secret__looker_api_client_id_staging",
 )
 looker_api_client_secret_staging = Secret(
     deploy_type="env",
     deploy_target="LOOKER_API_CLIENT_SECRET",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="probe_scraper_secret__looker_api_client_secret_staging",
 )
 looker_client_id_prod = Secret(
     deploy_type="env",
     deploy_target="LOOKER_CLIENT_ID",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="probe_scraper_secret__looker_api_client_id_prod",
 )
 looker_client_secret_prod = Secret(
     deploy_type="env",
     deploy_target="LOOKER_CLIENT_SECRET",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="probe_scraper_secret__looker_api_client_secret_prod",
 )
 dataops_looker_github_secret_access_token = Secret(
     deploy_type="env",
     deploy_target="GITHUB_ACCESS_TOKEN",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="probe_scraper_secret__dataops_looker_github_secret_access_token",
 )
 
