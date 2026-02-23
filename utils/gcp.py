@@ -20,6 +20,7 @@ from utils.dataproc import get_dataproc_parameters
 GCP_PROJECT_ID = "moz-fx-data-airflow-gke-prod"
 DATAPROC_PROJECT_ID = "airflow-dataproc"
 BIGQUERY_ETL_DOCKER_IMAGE = "gcr.io/moz-fx-data-airflow-prod-88e0/bigquery-etl:latest"
+BQETL_SCRIPT_PATH = "script/bqetl"
 
 
 def export_to_parquet(
@@ -250,7 +251,7 @@ def bigquery_etl_query(
     if destination_table is not None and date_partition_parameter is not None:
         destination_table = destination_table + table_partition_template
         parameters += (date_partition_parameter + ":DATE:{{ds}}",)
-    args = ["script/bqetl", "query", "run-multipart"] if multipart else ["query"]
+    args = [BQETL_SCRIPT_PATH, "query", "run-multipart"] if multipart else ["query"]
     return GKEPodOperator(
         reattach_on_restart=reattach_on_restart,
         gcp_conn_id=gcp_conn_id,
@@ -338,7 +339,7 @@ def bigquery_etl_copy_deduplicate(
         cluster_name=gke_cluster_name,
         namespace=gke_namespace,
         image=docker_image,
-        arguments=["script/bqetl", "copy_deduplicate"]
+        arguments=[BQETL_SCRIPT_PATH, "copy_deduplicate"]
         + ["--project-id=" + target_project_id]
         + (["--billing-projects", *list(billing_projects)] if billing_projects else [])
         + ["--date={{ds}}"]
@@ -407,7 +408,7 @@ def bigquery_dq_check(
     else:
         marker += ["warn"]
 
-    args = ["script/bqetl", "check", "run", *marker, sql_file_path]
+    args = [BQETL_SCRIPT_PATH, "check", "run", *marker, sql_file_path]
     return GKEPodOperator(
         gcp_conn_id=gcp_conn_id,
         project_id=gke_project_id,
@@ -456,7 +457,7 @@ def bigquery_bigeye_check(
     kwargs["name"] = kwargs.get("name", task_id.replace("_", "-"))
 
     args = [
-        "script/bqetl",
+        BQETL_SCRIPT_PATH,
         "monitoring",
         "run",
         table_id,
