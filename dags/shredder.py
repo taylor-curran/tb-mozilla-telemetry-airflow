@@ -66,6 +66,9 @@ dag = DAG(
     tags=tags,
 )
 docker_image = "gcr.io/moz-fx-data-airflow-prod-88e0/bigquery-etl:latest"
+
+# Constants for table names used in multiple task configurations
+FIREFOX_DESKTOP_DERIVED_EVENTS_STREAM = "firefox_desktop_derived.events_stream_v1"
 base_command = [
     "script/shredder_delete",
     "--state-table=moz-fx-data-shredder.shredder_state.shredder_state",
@@ -136,7 +139,7 @@ flat_rate = GKEPodOperator(
         "telemetry_stable.main_use_counter_v4",
         # sampling
         "telemetry_derived.event_events_v1",
-        "firefox_desktop_derived.events_stream_v1",
+        FIREFOX_DESKTOP_DERIVED_EVENTS_STREAM,
         "firefox_desktop_stable.metrics_v1",
         # force no dml
         "telemetry_derived.cohort_weekly_active_clients_staging_v1",
@@ -181,10 +184,10 @@ with_sampling = GKEPodOperator(
         "--billing-project=moz-fx-data-bq-batch-prod",
         "--only",
         "telemetry_derived.event_events_v1",
-        "firefox_desktop_derived.events_stream_v1",
+        FIREFOX_DESKTOP_DERIVED_EVENTS_STREAM,
         "--sampling-tables",
         "telemetry_derived.event_events_v1",
-        "firefox_desktop_derived.events_stream_v1",
+        FIREFOX_DESKTOP_DERIVED_EVENTS_STREAM,
     ],
     container_resources=k8s.V1ResourceRequirements(
         requests={"memory": "512Mi"},
