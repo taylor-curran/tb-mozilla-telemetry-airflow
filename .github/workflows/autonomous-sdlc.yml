@@ -10,5 +10,5 @@ on:
 
 jobs:
   autonomous-sdlc:
-    uses: taylor-curran/autonomous-sdlc-platform/.github/workflows/autonomous-sdlc.yml@main
+    uses: taylor-curran/autonomous-sdlc-platform/.github/workflows/autonomous-sdlc.yml@fe87e6d7058d32b586dbf314b0931bda67901207 # main
     secrets: inherit

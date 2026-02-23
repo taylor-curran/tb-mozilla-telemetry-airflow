@@ -27,7 +27,7 @@ def get_airflow_log_link(context):
 
     dag_run_id = context["dag_run"].run_id
     task_id = context["task_instance"].task_id
-    base_url = "http://workflow.telemetry.mozilla.org/dags/"
+    base_url = "https://workflow.telemetry.mozilla.org/dags/"
     base_url += "eam-slack-channels-integration/grid?tab=logs&dag_run_id="
     return base_url + f"{urllib.parse.quote(dag_run_id)}&task_id={task_id}"
 

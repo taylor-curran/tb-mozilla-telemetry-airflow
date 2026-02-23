@@ -81,7 +81,7 @@ with DAG(
 
         @task
         def prepare_slack_failure_message(entry):
-            project, staging_location = parse_table_name_from_backfill(entry)
+            _, staging_location = parse_table_name_from_backfill(entry)
             watcher_text = " ".join(
                 f"<@{watcher.split('@')[0]}>" for watcher in entry["watchers"]
             )
@@ -112,7 +112,7 @@ with DAG(
 
         @task
         def prepare_slack_processing_complete_parameters(entry):
-            project, staging_location = parse_table_name_from_backfill(entry)
+            _, staging_location = parse_table_name_from_backfill(entry)
             watcher_text = " ".join(
                 f"<@{watcher.split('@')[0]}>" for watcher in entry["watchers"]
             )
