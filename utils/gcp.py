@@ -493,12 +493,7 @@ def bigquery_xcom_query(
     parameters=(),
     arguments=(),
     project_id=None,
-    gcp_conn_id="google_cloud_airflow_gke",
-    gke_project_id=GCP_PROJECT_ID,
-    gke_location="us-west1",
-    gke_cluster_name="workloads-prod-v1",
-    gke_namespace="default",
-    docker_image=BIGQUERY_ETL_DOCKER_IMAGE,
+    gke_config=None,
     date_partition_parameter="submission_date",
     table_partition_template="${{ds_nodash}}",
     **kwargs,
@@ -512,12 +507,19 @@ def bigquery_xcom_query(
     :param Tuple[str] parameters:                  Parameters passed to bq query
     :param Tuple[str] arguments:                   Additional bq query arguments
     :param Optional[str] project_id:               BigQuery default project id
-    :param str gcp_conn_id:                        Airflow connection id for GCP access
-    :param str gke_project_id:                     GKE cluster project id
-    :param str gke_location:                       GKE cluster location
-    :param str gke_cluster_name:                   GKE cluster name
-    :param str gke_namespace:                      GKE cluster namespace
-    :param str docker_image:                       docker image to use
+    :param Optional[Dict[str, str]] gke_config:    GKE and container configuration. Supported keys:
+                                                   - gcp_conn_id: Airflow connection id for GCP access
+                                                     (default: "google_cloud_airflow_gke")
+                                                   - gke_project_id: GKE cluster project id
+                                                     (default: GCP_PROJECT_ID)
+                                                   - gke_location: GKE cluster location
+                                                     (default: "us-west1")
+                                                   - gke_cluster_name: GKE cluster name
+                                                     (default: "workloads-prod-v1")
+                                                   - gke_namespace: GKE cluster namespace
+                                                     (default: "default")
+                                                   - docker_image: docker image to use
+                                                     (default: BIGQUERY_ETL_DOCKER_IMAGE)
     :param Optional[str] date_partition_parameter: Parameter for indicating destination
                                                    partition to generate, if None
                                                    destination should be whole table
@@ -529,6 +531,15 @@ def bigquery_xcom_query(
 
     :return: GKEPodOperator
     """
+    if gke_config is None:
+        gke_config = {}
+    gcp_conn_id = gke_config.get("gcp_conn_id", "google_cloud_airflow_gke")
+    gke_project_id = gke_config.get("gke_project_id", GCP_PROJECT_ID)
+    gke_location = gke_config.get("gke_location", "us-west1")
+    gke_cluster_name = gke_config.get("gke_cluster_name", "workloads-prod-v1")
+    gke_namespace = gke_config.get("gke_namespace", "default")
+    docker_image = gke_config.get("docker_image", BIGQUERY_ETL_DOCKER_IMAGE)
+
     kwargs["task_id"] = kwargs.get("task_id", destination_table)
     kwargs["name"] = kwargs.get("name", kwargs["task_id"].replace("_", "-"))
     if destination_table is not None and date_partition_parameter is not None:
