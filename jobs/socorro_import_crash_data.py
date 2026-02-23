@@ -100,30 +100,12 @@ def replace_definitions(schema, definitions):
         raise ValueError(err_msg)
 
 
-def _get_spark_type(meta):
-    """Return the pyspark type and nullable flag for a given JSON schema meta entry."""
-    nullable = "null" in meta["type"]
-
-    if "string" in meta["type"]:
-        return StringType(), nullable
-    if "integer" in meta["type"]:
-        return IntegerType(), nullable
-    if "boolean" in meta["type"]:
-        return BooleanType(), nullable
-    if meta["type"] == "array" and "items" not in meta:
-        return ArrayType(StringType(), False), True
-    if meta["type"] == "array" and "items" in meta:
-        struct = StructType()
-        for row in get_rows(meta["items"]):
-            struct.add(row)
-        return ArrayType(struct), True
-    if meta["type"] == "object":
-        struct = StructType()
-        for row in get_rows(meta):
-            struct.add(row)
-        return struct, True
-
-    return None, None
+# Map from JSON schema primitive types to pyspark types.
+_PRIMITIVE_TYPE_MAP = {
+    "string": StringType,
+    "integer": IntegerType,
+    "boolean": BooleanType,
+}
 
 
 def get_rows(schema):
@@ -136,14 +118,37 @@ def get_rows(schema):
 
     for prop in sorted(schema["properties"]):
         meta = schema["properties"][prop]
-        spark_type, nullable = _get_spark_type(meta)
-        if spark_type is None:
+        nullable = "null" in meta["type"]
+
+        # Check primitive types via the lookup table.
+        matched_primitive = False
+        for type_key, type_cls in _PRIMITIVE_TYPE_MAP.items():
+            if type_key in meta["type"]:
+                if type_key == "string":
+                    logging.debug(f"{prop!r} allows the type to be String AND Integer")
+                yield StructField(prop, type_cls(), nullable)
+                matched_primitive = True
+                break
+
+        if matched_primitive:
+            continue
+
+        if meta["type"] == "array" and "items" not in meta:
+            yield StructField(prop, ArrayType(StringType(), False), True)
+        elif meta["type"] == "array" and "items" in meta:
+            struct = StructType()
+            for row in get_rows(meta["items"]):
+                struct.add(row)
+            yield StructField(prop, ArrayType(struct), True)
+        elif meta["type"] == "object":
+            struct = StructType()
+            for row in get_rows(meta):
+                struct.add(row)
+            yield StructField(prop, struct, True)
+        else:
             err_msg = f"Invalid JSON schema: {str(meta)[:100]}"
             log.error(err_msg)
             raise ValueError(err_msg)
-        if "string" in meta["type"]:
-            logging.debug(f"{prop!r} allows the type to be String AND Integer")
-        yield StructField(prop, spark_type, nullable)
 
 
 # First fetch from the primary source in gcs as per bug 1312006. We fall back to the github location if this is not available.
