@@ -18,6 +18,8 @@ from airflow.providers.google.cloud.operators.dataproc import (
     DataprocSubmitJobOperator,
 )
 
+DEFAULT_IMAGE_VERSION = "1.4-debian10"
+
 
 class DataProcHelper:
     """Helper class for creating/deleting dataproc clusters."""
@@ -27,7 +29,7 @@ class DataProcHelper:
         cluster_name=None,
         job_name=None,
         num_workers=2,
-        image_version="1.4-debian10",
+        image_version=DEFAULT_IMAGE_VERSION,
         region="us-west1",
         subnetwork_uri=None,
         internal_ip_only=None,
@@ -219,7 +221,7 @@ def moz_dataproc_pyspark_runner(
     default_args=None,
     cluster_name=None,
     num_workers=2,
-    image_version="1.4-debian10",
+    image_version=DEFAULT_IMAGE_VERSION,
     region="us-west1",
     subnetwork_uri=None,
     internal_ip_only=None,
@@ -429,7 +431,7 @@ def moz_dataproc_jar_runner(
     default_args=None,
     cluster_name=None,
     num_workers=2,
-    image_version="1.4-debian10",
+    image_version=DEFAULT_IMAGE_VERSION,
     region="us-west1",
     subnetwork_uri=None,
     internal_ip_only=None,
@@ -580,7 +582,7 @@ def moz_dataproc_scriptrunner(
     default_args=None,
     cluster_name=None,
     num_workers=2,
-    image_version="1.4-debian10",
+    image_version=DEFAULT_IMAGE_VERSION,
     region="us-west1",
     subnetwork_uri=None,
     internal_ip_only=None,
