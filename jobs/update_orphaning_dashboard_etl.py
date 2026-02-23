@@ -887,36 +887,35 @@ download_code_of_concern_dict
 
 # Create an RDD of out of date, of concern telemetry ping staged update
 # state codes along with a dictionary of the count of the codes.
+def _find_first_positive_code(code_array, index, version, current_version, ping):
+    """Return (code_index, ping) for the first positive value, or None."""
+    code_index = 0
+    for code_value in code_array[index]:
+        if code_value > 0:
+            if version == current_version:
+                return code_index, ping
+            return -1, ping
+        code_index += 1
+    return None
+
+
 def state_code_stage_mapper(d):
     ping = d
     current_version = ping.version[0]
+    code_arrays = [
+        ping.update_state_code_partial_stage,
+        ping.update_state_code_complete_stage,
+        ping.update_state_code_unknown_stage,
+    ]
     for index, version in enumerate(ping.version):
-        if ping.update_state_code_partial_stage is not None:
-            code_index = 0
-            for code_value in ping.update_state_code_partial_stage[index]:
-                if code_value > 0:
-                    if version == current_version:
-                        return code_index, ping
-                    return -1, ping
-                code_index += 1
-
-        if ping.update_state_code_complete_stage is not None:
-            code_index = 0
-            for code_value in ping.update_state_code_complete_stage[index]:
-                if code_value > 0:
-                    if version == current_version:
-                        return code_index, ping
-                    return -1, ping
-                code_index += 1
-
-        if ping.update_state_code_unknown_stage is not None:
-            code_index = 0
-            for code_value in ping.update_state_code_unknown_stage[index]:
-                if code_value > 0:
-                    if version == current_version:
-                        return code_index, ping
-                    return -1, ping
-                code_index += 1
+        for code_array in code_arrays:
+            if code_array is None:
+                continue
+            result = _find_first_positive_code(
+                code_array, index, version, current_version, ping
+            )
+            if result is not None:
+                return result
 
     return -2, ping
 
