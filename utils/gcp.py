@@ -359,10 +359,7 @@ def bigquery_dq_check(
     arguments=(),
     project_id="moz-fx-data-shared-prod",
     gcp_conn_id="google_cloud_airflow_gke",
-    gke_project_id=GCP_PROJECT_ID,
-    gke_location="us-west1",
-    gke_cluster_name="workloads-prod-v1",
-    gke_namespace="default",
+    gke_config=None,
     docker_image=BIGQUERY_ETL_DOCKER_IMAGE,
     date_partition_parameter="submission_date",
     is_dq_check_fail=True,
@@ -380,10 +377,12 @@ def bigquery_dq_check(
     :param Tuple[str] parameters:                  Parameters passed to bq query
     :param Optional[str] project_id:               BigQuery default project id
     :param str gcp_conn_id:                        Airflow connection id for GCP access
-    :param str gke_project_id:                     GKE cluster project id
-    :param str gke_location:                       GKE cluster location
-    :param str gke_cluster_name:                   GKE cluster name
-    :param str gke_namespace:                      GKE cluster namespace
+    :param Optional[dict] gke_config:              GKE cluster configuration dict with
+                                                   optional keys: "project_id" (default:
+                                                   GCP_PROJECT_ID), "location" (default:
+                                                   "us-west1"), "cluster_name" (default:
+                                                   "workloads-prod-v1"), "namespace"
+                                                   (default: "default")
     :param str docker_image:                       docker image to use
     :param Optional[str] date_partition_parameter: Parameter for indicating destination
                                                    partition to generate, if None
@@ -393,6 +392,13 @@ def bigquery_dq_check(
                                                    GKEPodOperator
     :return: GKEPodOperator
     """
+    if gke_config is None:
+        gke_config = {}
+    gke_project_id = gke_config.get("project_id", GCP_PROJECT_ID)
+    gke_location = gke_config.get("location", "us-west1")
+    gke_cluster_name = gke_config.get("cluster_name", "workloads-prod-v1")
+    gke_namespace = gke_config.get("namespace", "default")
+
     kwargs["task_id"] = kwargs.get("task_id", task_id)
     kwargs["name"] = kwargs.get("name", task_id.replace("_", "-"))
     destination_table_no_partition = (
