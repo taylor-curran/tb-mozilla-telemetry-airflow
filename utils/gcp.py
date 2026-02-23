@@ -35,7 +35,6 @@ def export_to_parquet(
     dataproc_storage_bucket="airflow-dataproc-bq-parquet-exports",
     num_workers=2,
     num_preemptible_workers=0,
-    gcs_output_bucket="airflow-dataproc-bq-parquet-exports",
     region="us-west1",
 ):
     """
@@ -54,7 +53,8 @@ def export_to_parquet(
     :param Optional[str] parent_dag_name:         Parent DAG name
     :param Optional[Dict[str, Any]] default_args: DAG configuration
     :param str gcp_conn_id:                       Airflow connection id for GCP access
-    :param str dataproc_storage_bucket:           Dataproc staging GCS bucket
+    :param str dataproc_storage_bucket:           Dataproc staging GCS bucket,
+                                                  also used as the GCS output bucket
     :param int num_preemptible_workers:           Number of Dataproc preemptible workers
     :param str region:                            Region where the dataproc cluster will
                                                   be located. Zone will be chosen
@@ -86,7 +86,7 @@ def export_to_parquet(
     avro_prefix = "avro/" + export_prefix
     if not static_partitions and partition_id:
         avro_prefix += "partition_id=" + partition_id + "/"
-    avro_path = "gs://" + gcs_output_bucket + "/" + avro_prefix + "*.avro"
+    avro_path = "gs://" + dataproc_storage_bucket + "/" + avro_prefix + "*.avro"
 
     params = get_dataproc_parameters("google_cloud_airflow_dataproc")
 
@@ -140,7 +140,7 @@ def export_to_parquet(
                 "--" + key + "=" + value
                 for key, value in {
                     "avro-path": (not use_storage_api) and avro_path,
-                    "destination": "gs://" + gcs_output_bucket,
+                    "destination": "gs://" + dataproc_storage_bucket,
                     "destination-table": destination_table,
                 }.items()
                 if value
@@ -179,7 +179,7 @@ def export_to_parquet(
             )
             avro_delete = GCSDeleteObjectsOperator(
                 task_id="avro_delete",
-                bucket_name=gcs_output_bucket,
+                bucket_name=dataproc_storage_bucket,
                 prefix=avro_prefix,
                 gcp_conn_id=gcp_conn_id,
                 trigger_rule="all_done",
