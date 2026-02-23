@@ -8,28 +8,31 @@ from utils.tags import Tag
 
 # Deploy value associated with Microsoft Store keys in k8s secret `airflow-gke-secrets` in environments Microsoft variables.
 
+# Name of the Kubernetes resource that holds the GKE environment values.
+GKE_K8S_RESOURCE_NAME = "airflow-gke-secrets"
+
 microsoft_client_id = Secret(
     deploy_type="env",
     deploy_target="MICROSOFT_CLIENT_ID",
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_RESOURCE_NAME,
     key="MICROSOFT_CLIENT_ID",
 )
 microsoft_client_secret = Secret(
     deploy_type="env",
     deploy_target="MICROSOFT_CLIENT_SECRET",
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_RESOURCE_NAME,
     key="MICROSOFT_CLIENT_SECRET",
 )
 microsoft_tenant_id = Secret(
     deploy_type="env",
     deploy_target="MICROSOFT_TENANT_ID",
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_RESOURCE_NAME,
     key="MICROSOFT_TENANT_ID",
 )
 microsoft_store_app_list = Secret(
     deploy_type="env",
     deploy_target="MICROSOFT_STORE_APP_LIST",
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_RESOURCE_NAME,
     key="MICROSOFT_STORE_APP_LIST",
 )
 
