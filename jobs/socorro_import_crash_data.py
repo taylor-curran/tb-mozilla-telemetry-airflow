@@ -5,7 +5,7 @@ import json
 import logging
 import urllib.request
 from datetime import datetime as dt
-from datetime import timedelta
+from datetime import timedelta, timezone
 
 from pyspark.sql.session import SparkSession
 from pyspark.sql.types import (
@@ -176,7 +176,7 @@ def daterange(start_date, end_date):
 def import_day(source_gcs_path, dest_gcs_path, d, schema, version, num_partitions):
     """Convert JSON data stored in an S3 bucket into parquet, indexed by crash_date."""
 
-    log.info(f"Processing {d}, started at {dt.utcnow()}")
+    log.info(f"Processing {d}, started at {dt.now(timezone.utc)}")
     cur_source_gcs_path = f"{source_gcs_path}/{d}"
     cur_dest_gcs_path = f"{dest_gcs_path}/v{version}/crash_date={d}"
 
