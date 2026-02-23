@@ -6,6 +6,9 @@ from airflow.providers.cncf.kubernetes.secret import Secret
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
 
+# Name of the Kubernetes resource that stores GKE secrets
+GKE_SECRETS_STORE = "airflow-gke-secrets"
+
 DOCS = """
 ### Workday/Everfi integration
 Runs a script in docker image that syncs employee data
@@ -122,25 +125,25 @@ tags = [Tag.ImpactTier.tier_3]
 EVERFI_INTEG_WORKDAY_USERNAME = Secret(
     deploy_type="env",
     deploy_target="EVERFI_INTEG_WORKDAY_USERNAME",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRETS_STORE,
     key="EVERFI_INTEG_WORKDAY_USERNAME",
 )
 EVERFI_INTEG_WORKDAY_PASSWORD = Secret(
     deploy_type="env",
     deploy_target="EVERFI_INTEG_WORKDAY_PASSWORD",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRETS_STORE,
     key="EVERFI_INTEG_WORKDAY_PASSWORD",
 )
 EVERFI_USERNAME = Secret(
     deploy_type="env",
     deploy_target="EVERFI_USERNAME",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRETS_STORE,
     key="EVERFI_USERNAME",
 )
 EVERFI_PASSWORD = Secret(
     deploy_type="env",
     deploy_target="EVERFI_PASSWORD",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRETS_STORE,
     key="EVERFI_PASSWORD",
 )
 
