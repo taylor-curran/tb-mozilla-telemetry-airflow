@@ -125,7 +125,7 @@ default_args = {
 }
 tags = [Tag.ImpactTier.tier_3, Tag.Triage.record_only, Tag.Repo.airflow]
 
-GKE_SECRETS_NAME = "airflow-gke-secrets"  # noqa: Kubernetes Secret resource name, not a credential
+GKE_SECRETS_NAME = "airflow-gke-secrets"  # Kubernetes Secret resource name, not a credential
 
 
 NETSUITE_INTEG_WORKDAY_USERNAME = Secret(
