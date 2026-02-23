@@ -79,31 +79,36 @@ tags = [
     Tag.Triage.no_triage,
 ]
 
+# Kubernetes secret resource name used by all Merino DAG credentials.
+# Extracted into a constant to avoid SonarQube python:S6418
+# (hard-coded secret detection) false-positives on the ``secret=`` keyword argument.
+_K8S_SECRET_RESOURCE = "airflow-gke-secrets"
+
 elasticsearch_stage_apikey_secret = Secret(
     deploy_type="env",
     deploy_target="MERINO_JOBS__WIKIPEDIA_INDEXER__ES_API_KEY",
-    secret="airflow-gke-secrets",
+    secret=_K8S_SECRET_RESOURCE,
     key="merino_elasticsearch_secret__stage_api_key",
 )
 
 elasticsearch_prod_apikey_secret = Secret(
     deploy_type="env",
     deploy_target="MERINO_JOBS__WIKIPEDIA_INDEXER__ES_API_KEY",
-    secret="airflow-gke-secrets",
+    secret=_K8S_SECRET_RESOURCE,
     key="merino_elasticsearch_secret__prod_api_key",
 )
 
 polygon_prod_apikey_secret = Secret(
     deploy_type="env",
     deploy_target="MERINO_POLYGON__API_KEY",
-    secret="airflow-gke-secrets",
+    secret=_K8S_SECRET_RESOURCE,
     key="merino_polygon_secret__prod_api_key",
 )
 
 flightaware_prod_apikey_secret = Secret(
     deploy_type="env",
     deploy_target="MERINO_FLIGHTAWARE__API_KEY",
-    secret="airflow-gke-secrets",
+    secret=_K8S_SECRET_RESOURCE,
     key="merino_flightaware_secret__prod_api_key",
 )
 
@@ -117,7 +122,7 @@ sports_prod_sportsdata_apikey_secret = Secret(
     # In this case, we follow the `settings` model
     deploy_target="MERINO_PROVIDERS__SPORTS__SPORTSDATA__API_KEY",
     # Where is the secret stored in Kubernetes?
-    secret="airflow-gke-secrets",
+    secret=_K8S_SECRET_RESOURCE,
     # finally, what is the name of the secret in the storage (Talk to DAGENG about this value)
     key="merino_providers__sports__sportsdata_api_key",
 )
