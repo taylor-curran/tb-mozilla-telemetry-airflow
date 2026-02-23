@@ -6,6 +6,9 @@ from airflow.providers.cncf.kubernetes.secret import Secret
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
 
+# Name of the Kubernetes secret resource used by Airflow GKE pods
+K8S_SECRET_RESOURCE_NAME = "airflow-gke-secrets"
+
 DOCS = """
 ### Workday/docusign integration
 Runs a script in docker image that syncs employee data
@@ -122,19 +125,19 @@ tags = [Tag.ImpactTier.tier_3]
 docusign_jwt = Secret(
     deploy_type="env",
     deploy_target="docusign_jwt",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_RESOURCE_NAME,
     key="docusign_jwt",
 )
 DOCUSIGN_INTEG_WORKDAY_USERNAME = Secret(
     deploy_type="env",
     deploy_target="DOCUSIGN_INTEG_WORKDAY_USERNAME",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_RESOURCE_NAME,
     key="DOCUSIGN_INTEG_WORKDAY_USERNAME",
 )
 DOCUSIGN_INTEG_WORKDAY_PASSWORD = Secret(
     deploy_type="env",
     deploy_target="DOCUSIGN_INTEG_WORKDAY_PASSWORD",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_RESOURCE_NAME,
     key="DOCUSIGN_INTEG_WORKDAY_PASSWORD",
 )
 
