@@ -36,10 +36,14 @@ default_args = {
 dag_name = "adm_dma_export"
 tags = [Tag.ImpactTier.tier_3]
 
+# Name of the Kubernetes Secret resource that stores GKE credentials.
+# This is a resource identifier, not a credential itself.
+AIRFLOW_GKE_RESOURCE_NAME = "airflow-gke-secrets"
+
 adm_sftp_secret = Secret(
     deploy_type="env",
     deploy_target="SFTP_PASSWORD",
-    secret="airflow-gke-secrets",
+    secret=AIRFLOW_GKE_RESOURCE_NAME,
     key="adm_export_secret__sftp_password",
 )
 
