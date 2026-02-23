@@ -5,7 +5,7 @@ import json
 import logging
 import urllib.request
 from datetime import datetime as dt
-from datetime import timedelta
+from datetime import timedelta, timezone
 
 from pyspark.sql.session import SparkSession
 from pyspark.sql.types import (
@@ -100,6 +100,31 @@ def replace_definitions(schema, definitions):
         raise ValueError(err_msg)
 
 
+def _resolve_type(prop, meta):
+    """Resolve a single property's JSON schema type to a pyspark StructField."""
+    if "string" in meta["type"]:
+        logging.debug(f"{prop!r} allows the type to be String AND Integer")
+        return StructField(prop, StringType(), "null" in meta["type"])
+    if "integer" in meta["type"]:
+        return StructField(prop, IntegerType(), "null" in meta["type"])
+    if "boolean" in meta["type"]:
+        return StructField(prop, BooleanType(), "null" in meta["type"])
+    if meta["type"] == "array" and "items" not in meta:
+        # Assuming strings in the array
+        return StructField(prop, ArrayType(StringType(), False), True)
+    if meta["type"] == "array" and "items" in meta:
+        struct = StructType()
+        for row in get_rows(meta["items"]):
+            struct.add(row)
+        return StructField(prop, ArrayType(struct), True)
+    if meta["type"] == "object":
+        struct = StructType()
+        for row in get_rows(meta):
+            struct.add(row)
+        return StructField(prop, struct, True)
+    return None
+
+
 def get_rows(schema):
     """Map the fields in a JSON schema to corresponding data structures in pyspark."""
 
@@ -110,26 +135,9 @@ def get_rows(schema):
 
     for prop in sorted(schema["properties"]):
         meta = schema["properties"][prop]
-        if "string" in meta["type"]:
-            logging.debug(f"{prop!r} allows the type to be String AND Integer")
-            yield StructField(prop, StringType(), "null" in meta["type"])
-        elif "integer" in meta["type"]:
-            yield StructField(prop, IntegerType(), "null" in meta["type"])
-        elif "boolean" in meta["type"]:
-            yield StructField(prop, BooleanType(), "null" in meta["type"])
-        elif meta["type"] == "array" and "items" not in meta:
-            # Assuming strings in the array
-            yield StructField(prop, ArrayType(StringType(), False), True)
-        elif meta["type"] == "array" and "items" in meta:
-            struct = StructType()
-            for row in get_rows(meta["items"]):
-                struct.add(row)
-            yield StructField(prop, ArrayType(struct), True)
-        elif meta["type"] == "object":
-            struct = StructType()
-            for row in get_rows(meta):
-                struct.add(row)
-            yield StructField(prop, struct, True)
+        field = _resolve_type(prop, meta)
+        if field is not None:
+            yield field
         else:
             err_msg = f"Invalid JSON schema: {str(meta)[:100]}"
             log.error(err_msg)
@@ -176,7 +184,7 @@ def daterange(start_date, end_date):
 def import_day(source_gcs_path, dest_gcs_path, d, schema, version, num_partitions):
     """Convert JSON data stored in an S3 bucket into parquet, indexed by crash_date."""
 
-    log.info(f"Processing {d}, started at {dt.utcnow()}")
+    log.info(f"Processing {d}, started at {dt.now(timezone.utc)}")
     cur_source_gcs_path = f"{source_gcs_path}/{d}"
     cur_dest_gcs_path = f"{dest_gcs_path}/v{version}/crash_date={d}"
 
@@ -184,20 +192,24 @@ def import_day(source_gcs_path, dest_gcs_path, d, schema, version, num_partition
     df.repartition(num_partitions).write.parquet(cur_dest_gcs_path, mode="overwrite")
 
 
-def backfill(start_date_yyyymmdd, schema, version):
+def backfill(
+    source_gcs_path, dest_gcs_path, start_date_yyyymmdd, schema, version, num_partitions
+):
     """
     Import data from a start date to yesterday's date.
 
     Example:
     -------
-        backfill("20160902", crash_schema, version)
+        backfill(source_gcs_path, dest_gcs_path, "20160902", crash_schema, version, num_partitions)
 
     """
     start_date = dt.strptime(start_date_yyyymmdd, "%Y%m%d")
-    end_date = dt.utcnow() - timedelta(1)  # yesterday
+    end_date = dt.now(timezone.utc) - timedelta(1)  # yesterday
     for d in daterange(start_date, end_date):
         try:
-            import_day(d)
+            import_day(
+                source_gcs_path, dest_gcs_path, d, schema, version, num_partitions
+            )
         except Exception as e:
             log.error(e)
 
