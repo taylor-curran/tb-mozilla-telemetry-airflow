@@ -13,6 +13,14 @@ from utils.gcp import (
 from utils.glean_v2_backfill import column_removal_backfill_tables
 from utils.tags import Tag
 
+# Constants for downstream dependency execution date schedule intervals
+SCHEDULE_HOUR_0 = "hour=0, minute=0"
+SCHEDULE_HOUR_2 = "hour=2, minute=0"
+SCHEDULE_HOUR_3 = "hour=3, minute=0"
+SCHEDULE_HOUR_4 = "hour=4, minute=0"
+SCHEDULE_HOUR_5 = "hour=5, minute=0"
+SCHEDULE_HOUR_7 = "hour=7, minute=0"
+
 DOCS = """\
 # Copy-Deduplicate
 
@@ -131,36 +139,35 @@ with models.DAG(
     with TaskGroup("copy_deduplicate_all_external") as copy_deduplicate_all_external:
         # list of downstream dependencies consisting of external DAG name and execution delta
         downstream_dependencies = {
-            ("bhr_collection", "hour=5, minute=0"),
-            ("glam_fenix", "hour=2, minute=0"),
-            ("glam_fog", "hour=2, minute=0"),
-            ("bqetl_activity_stream", "hour=2, minute=0"),
-            ("bqetl_amo_stats", "hour=3, minute=0"),
-            ("bqetl_core", "hour=2, minute=0"),
-            ("bqetl_ctxsvc_derived", "hour=3, minute=0"),
-            ("bqetl_desktop_funnel", "hour=4, minute=0"),
-            ("bqetl_event_rollup", "hour=3, minute=0"),
-            ("bqetl_experiments_daily", "hour=3, minute=0"),
-            ("bqetl_feature_usage", "hour=5, minute=0"),
-            ("bqetl_fenix_event_rollup", "hour=2, minute=0"),
-            ("bqetl_firefox_ios", "hour=4, minute=0"),
-            ("bqetl_fog_decision_support", "hour=4, minute=0"),
-            ("bqetl_internal_tooling", "hour=4, minute=0"),
-            ("bqetl_internet_outages", "hour=7, minute=0"),
-            ("bqetl_messaging_system", "hour=2, minute=0"),
-            ("bqetl_main_summary", "hour=2, minute=0"),
-            ("bqetl_messaging_system", "hour=2, minute=0"),
-            ("bqetl_mobile_activation", "hour=0, minute=0"),
-            ("bqetl_mobile_search", "hour=2, minute=0"),
-            ("bqetl_monitoring", "hour=2, minute=0"),
-            ("bqetl_newtab", "hour=0, minute=0"),
-            ("bqetl_org_mozilla_fenix_derived", "hour=2, minute=0"),
-            ("bqetl_org_mozilla_firefox_derived", "hour=2, minute=0"),
-            ("bqetl_org_mozilla_focus_derived", "hour=2, minute=0"),
-            ("bqetl_public_data_json", "hour=5, minute=0"),
-            ("bqetl_search_terms_daily", "hour=3, minute=0"),
-            ("bqetl_sponsored_tiles_clients_daily", "hour=4, minute=0"),
-            ("bqetl_urlbar", "hour=3, minute=0"),
+            ("bhr_collection", SCHEDULE_HOUR_5),
+            ("glam_fenix", SCHEDULE_HOUR_2),
+            ("glam_fog", SCHEDULE_HOUR_2),
+            ("bqetl_activity_stream", SCHEDULE_HOUR_2),
+            ("bqetl_amo_stats", SCHEDULE_HOUR_3),
+            ("bqetl_core", SCHEDULE_HOUR_2),
+            ("bqetl_ctxsvc_derived", SCHEDULE_HOUR_3),
+            ("bqetl_desktop_funnel", SCHEDULE_HOUR_4),
+            ("bqetl_event_rollup", SCHEDULE_HOUR_3),
+            ("bqetl_experiments_daily", SCHEDULE_HOUR_3),
+            ("bqetl_feature_usage", SCHEDULE_HOUR_5),
+            ("bqetl_fenix_event_rollup", SCHEDULE_HOUR_2),
+            ("bqetl_firefox_ios", SCHEDULE_HOUR_4),
+            ("bqetl_fog_decision_support", SCHEDULE_HOUR_4),
+            ("bqetl_internal_tooling", SCHEDULE_HOUR_4),
+            ("bqetl_internet_outages", SCHEDULE_HOUR_7),
+            ("bqetl_main_summary", SCHEDULE_HOUR_2),
+            ("bqetl_messaging_system", SCHEDULE_HOUR_2),
+            ("bqetl_mobile_activation", SCHEDULE_HOUR_0),
+            ("bqetl_mobile_search", SCHEDULE_HOUR_2),
+            ("bqetl_monitoring", SCHEDULE_HOUR_2),
+            ("bqetl_newtab", SCHEDULE_HOUR_0),
+            ("bqetl_org_mozilla_fenix_derived", SCHEDULE_HOUR_2),
+            ("bqetl_org_mozilla_firefox_derived", SCHEDULE_HOUR_2),
+            ("bqetl_org_mozilla_focus_derived", SCHEDULE_HOUR_2),
+            ("bqetl_public_data_json", SCHEDULE_HOUR_5),
+            ("bqetl_search_terms_daily", SCHEDULE_HOUR_3),
+            ("bqetl_sponsored_tiles_clients_daily", SCHEDULE_HOUR_4),
+            ("bqetl_urlbar", SCHEDULE_HOUR_3),
         }
 
         for downstream_dependency in downstream_dependencies:
@@ -197,20 +204,20 @@ with models.DAG(
 
     with TaskGroup("main_ping_external") as main_ping_external:
         downstream_dependencies = {
-            ("graphics_telemetry", "hour=3, minute=0"),
-            ("glam", "hour=2, minute=0"),
-            ("bqetl_addons", "hour=4, minute=0"),
-            ("bqetl_amo_stats", "hour=3, minute=0"),
-            ("bqetl_desktop_platform", "hour=3, minute=0"),
-            ("bqetl_devtools", "hour=3, minute=0"),
-            ("bqetl_experiments_daily", "hour=3, minute=0"),
-            ("bqetl_fog_decision_support", "hour=4, minute=0"),
-            ("bqetl_internet_outages", "hour=7, minute=0"),
-            ("bqetl_main_summary", "hour=2, minute=0"),
-            ("bqetl_monitoring", "hour=2, minute=0"),
-            ("bqetl_public_data_json", "hour=5, minute=0"),
-            ("bqetl_sponsored_tiles_clients_daily", "hour=4, minute=0"),
-            ("bqetl_ssl_ratios", "hour=2, minute=0"),
+            ("graphics_telemetry", SCHEDULE_HOUR_3),
+            ("glam", SCHEDULE_HOUR_2),
+            ("bqetl_addons", SCHEDULE_HOUR_4),
+            ("bqetl_amo_stats", SCHEDULE_HOUR_3),
+            ("bqetl_desktop_platform", SCHEDULE_HOUR_3),
+            ("bqetl_devtools", SCHEDULE_HOUR_3),
+            ("bqetl_experiments_daily", SCHEDULE_HOUR_3),
+            ("bqetl_fog_decision_support", SCHEDULE_HOUR_4),
+            ("bqetl_internet_outages", SCHEDULE_HOUR_7),
+            ("bqetl_main_summary", SCHEDULE_HOUR_2),
+            ("bqetl_monitoring", SCHEDULE_HOUR_2),
+            ("bqetl_public_data_json", SCHEDULE_HOUR_5),
+            ("bqetl_sponsored_tiles_clients_daily", SCHEDULE_HOUR_4),
+            ("bqetl_ssl_ratios", SCHEDULE_HOUR_2),
         }
 
         for downstream_dependency in downstream_dependencies:
@@ -242,7 +249,7 @@ with models.DAG(
 
     with TaskGroup("first_shutdown_ping_external") as first_shutdown_ping_external:
         downstream_dependencies = {
-            ("bqetl_analytics_tables", "hour=2, minute=0"),
+            ("bqetl_analytics_tables", SCHEDULE_HOUR_2),
         }
 
         for downstream_dependency in downstream_dependencies:
@@ -282,11 +289,11 @@ with models.DAG(
 
     with TaskGroup("event_events_external") as event_events_external:
         downstream_dependencies = {
-            ("jetstream", "hour=4, minute=0"),
-            ("bqetl_amo_stats", "hour=3, minute=0"),
-            ("bqetl_experiments_daily", "hour=3, minute=0"),
-            ("bqetl_feature_usage", "hour=5, minute=0"),
-            ("bqetl_main_summary", "hour=2, minute=0"),
+            ("jetstream", SCHEDULE_HOUR_4),
+            ("bqetl_amo_stats", SCHEDULE_HOUR_3),
+            ("bqetl_experiments_daily", SCHEDULE_HOUR_3),
+            ("bqetl_feature_usage", SCHEDULE_HOUR_5),
+            ("bqetl_main_summary", SCHEDULE_HOUR_2),
         }
 
         for downstream_dependency in downstream_dependencies:
@@ -317,11 +324,11 @@ with models.DAG(
 
     with TaskGroup("bq_main_events_external") as bq_main_events_external:
         downstream_dependencies = {
-            ("jetstream", "hour=4, minute=0"),
-            ("bqetl_amo_stats", "hour=3, minute=0"),
-            ("bqetl_experiments_daily", "hour=3, minute=0"),
-            ("bqetl_feature_usage", "hour=5, minute=0"),
-            ("bqetl_main_summary", "hour=2, minute=0"),
+            ("jetstream", SCHEDULE_HOUR_4),
+            ("bqetl_amo_stats", SCHEDULE_HOUR_3),
+            ("bqetl_experiments_daily", SCHEDULE_HOUR_3),
+            ("bqetl_feature_usage", SCHEDULE_HOUR_5),
+            ("bqetl_main_summary", SCHEDULE_HOUR_2),
         }
 
         for downstream_dependency in downstream_dependencies:
