@@ -856,27 +856,31 @@ check_ex_error_notify_of_concern_dict
 
 # Create an RDD of out of date, of concern telemetry ping update
 # download codes along with a dictionary of the count of the codes.
+def _find_positive_code_index(code_values):
+    """Return the index of the first positive value in code_values, or None."""
+    for code_index, code_value in enumerate(code_values):
+        if code_value > 0:
+            return code_index
+    return None
+
+
 def download_code_mapper(d):
     ping = d
     current_version = ping.version[0]
     for index, version in enumerate(ping.version):
-        if ping.update_download_code_partial is not None:
-            code_index = 0
-            for code_value in ping.update_download_code_partial[index]:
-                if code_value > 0:
-                    if version == current_version:
-                        return code_index, ping
-                    return -1, ping
-                code_index += 1
+        partial = ping.update_download_code_partial
+        complete = ping.update_download_code_complete
 
-        if ping.update_download_code_complete is not None:
-            code_index = 0
-            for code_value in ping.update_download_code_complete[index]:
-                if code_value > 0:
-                    if version == current_version:
-                        return code_index, ping
-                    return -1, ping
-                code_index += 1
+        result = None
+        if partial is not None:
+            result = _find_positive_code_index(partial[index])
+        if result is None and complete is not None:
+            result = _find_positive_code_index(complete[index])
+
+        if result is not None:
+            if version == current_version:
+                return result, ping
+            return -1, ping
 
     return -2, ping
 
