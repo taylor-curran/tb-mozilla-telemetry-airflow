@@ -149,7 +149,6 @@ with models.DAG(
             ("bqetl_internet_outages", "hour=7, minute=0"),
             ("bqetl_messaging_system", "hour=2, minute=0"),
             ("bqetl_main_summary", "hour=2, minute=0"),
-            ("bqetl_messaging_system", "hour=2, minute=0"),
             ("bqetl_mobile_activation", "hour=0, minute=0"),
             ("bqetl_mobile_search", "hour=2, minute=0"),
             ("bqetl_monitoring", "hour=2, minute=0"),
