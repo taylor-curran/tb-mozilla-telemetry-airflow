@@ -12,6 +12,8 @@ from airflow.providers.cncf.kubernetes.secret import Secret
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
 
+AIRFLOW_GKE_K8S_RESOURCE = "airflow-gke-secrets"
+
 default_args = {
     "owner": "ahalberstadt@mozilla.com",
     "depends_on_past": False,
@@ -35,13 +37,13 @@ secrets = [
     Secret(
         deploy_type="env",
         deploy_target="FXCI_ETL_STORAGE_CREDENTIALS",
-        secret="airflow-gke-secrets",
+        secret=AIRFLOW_GKE_K8S_RESOURCE,
         key="fxci_etl_secret__gcp-credentials",
     ),
     Secret(
         deploy_type="env",
         deploy_target="FXCI_ETL_MONITORING_CREDENTIALS",
-        secret="airflow-gke-secrets",
+        secret=AIRFLOW_GKE_K8S_RESOURCE,
         key="fxci_etl_secret__gcp-credentials",
     ),
 ]
