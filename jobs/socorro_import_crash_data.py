@@ -5,7 +5,7 @@ import json
 import logging
 import urllib.request
 from datetime import datetime as dt
-from datetime import timedelta
+from datetime import timedelta, timezone
 
 from pyspark.sql.session import SparkSession
 from pyspark.sql.types import (
@@ -100,6 +100,14 @@ def replace_definitions(schema, definitions):
         raise ValueError(err_msg)
 
 
+# Map from JSON schema primitive types to pyspark types.
+_PRIMITIVE_TYPE_MAP = {
+    "string": StringType,
+    "integer": IntegerType,
+    "boolean": BooleanType,
+}
+
+
 def get_rows(schema):
     """Map the fields in a JSON schema to corresponding data structures in pyspark."""
 
@@ -110,15 +118,22 @@ def get_rows(schema):
 
     for prop in sorted(schema["properties"]):
         meta = schema["properties"][prop]
-        if "string" in meta["type"]:
-            logging.debug(f"{prop!r} allows the type to be String AND Integer")
-            yield StructField(prop, StringType(), "null" in meta["type"])
-        elif "integer" in meta["type"]:
-            yield StructField(prop, IntegerType(), "null" in meta["type"])
-        elif "boolean" in meta["type"]:
-            yield StructField(prop, BooleanType(), "null" in meta["type"])
-        elif meta["type"] == "array" and "items" not in meta:
-            # Assuming strings in the array
+        nullable = "null" in meta["type"]
+
+        # Check primitive types via the lookup table.
+        matched_primitive = False
+        for type_key, type_cls in _PRIMITIVE_TYPE_MAP.items():
+            if type_key in meta["type"]:
+                if type_key == "string":
+                    logging.debug(f"{prop!r} allows the type to be String AND Integer")
+                yield StructField(prop, type_cls(), nullable)
+                matched_primitive = True
+                break
+
+        if matched_primitive:
+            continue
+
+        if meta["type"] == "array" and "items" not in meta:
             yield StructField(prop, ArrayType(StringType(), False), True)
         elif meta["type"] == "array" and "items" in meta:
             struct = StructType()
@@ -176,7 +191,7 @@ def daterange(start_date, end_date):
 def import_day(source_gcs_path, dest_gcs_path, d, schema, version, num_partitions):
     """Convert JSON data stored in an S3 bucket into parquet, indexed by crash_date."""
 
-    log.info(f"Processing {d}, started at {dt.utcnow()}")
+    log.info(f"Processing {d}, started at {dt.now(timezone.utc)}")
     cur_source_gcs_path = f"{source_gcs_path}/{d}"
     cur_dest_gcs_path = f"{dest_gcs_path}/v{version}/crash_date={d}"
 
@@ -194,7 +209,7 @@ def backfill(start_date_yyyymmdd, schema, version):
 
     """
     start_date = dt.strptime(start_date_yyyymmdd, "%Y%m%d")
-    end_date = dt.utcnow() - timedelta(1)  # yesterday
+    end_date = dt.now(timezone.utc) - timedelta(1)  # yesterday
     for d in daterange(start_date, end_date):
         try:
             import_day(d)
