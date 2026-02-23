@@ -15,6 +15,8 @@ from utils.constants import ALLOWED_STATES, FAILED_STATES
 from utils.gcp import bigquery_etl_query
 from utils.tags import Tag
 
+PUBLIC_DATA_REPORT_CLI = "public_data_report.cli"
+
 default_args = {
     "owner": "bewu@mozilla.com",
     "depends_on_past": False,
@@ -72,7 +74,7 @@ hardware_report_export = GKEPodOperator(
     image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/firefox-public-data-report-etl/firefox-public-data-report-etl:latest",
     arguments=[
         "-m",
-        "public_data_report.cli",
+        PUBLIC_DATA_REPORT_CLI,
         "hardware_report",
         "--date_from",
         "{{ ds }}",
@@ -117,7 +119,7 @@ user_activity_usage_behavior_export = GKEPodOperator(
     image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/firefox-public-data-report-etl/firefox-public-data-report-etl:latest",
     arguments=[
         "-m",
-        "public_data_report.cli",
+        PUBLIC_DATA_REPORT_CLI,
         "user_activity",
         "--bq_table",
         "moz-fx-data-shared-prod.telemetry_derived.public_data_report_user_activity_v1",
@@ -136,7 +138,7 @@ annotations_export = GKEPodOperator(
     image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/firefox-public-data-report-etl/firefox-public-data-report-etl:latest",
     arguments=[
         "-m",
-        "public_data_report.cli",
+        PUBLIC_DATA_REPORT_CLI,
         "annotations",
         "--date_to",
         "{{ ds }}",

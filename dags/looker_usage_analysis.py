@@ -31,6 +31,8 @@ default_args = {
 
 tags = [Tag.ImpactTier.tier_3]
 
+LOOKER_UTILS_IMAGE = "us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest"
+
 looker_client_id_prod = Secret(
     deploy_type="env",
     deploy_target="LOOKER_CLIENT_ID",
@@ -73,7 +75,7 @@ with DAG(
             "--date={{ ds }}",
             "explores",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },
@@ -93,7 +95,7 @@ with DAG(
             "--date={{ ds }}",
             "models",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },
@@ -113,7 +115,7 @@ with DAG(
             "--date={{ ds }}",
             "unused-explores",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },
