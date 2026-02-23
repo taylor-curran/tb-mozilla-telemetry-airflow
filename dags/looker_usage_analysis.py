@@ -45,6 +45,8 @@ looker_client_secret_prod = Secret(
 )
 looker_instance_uri = "https://mozilla.cloud.looker.com"
 
+DATE_ARG = "--date={{ ds }}"
+
 
 with DAG(
     "looker_usage_analysis",
@@ -70,7 +72,7 @@ with DAG(
             "analyze",
             "--destination_table",
             "moz-fx-data-shared-prod.monitoring_derived.looker_usage_explores_v1",
-            "--date={{ ds }}",
+            DATE_ARG,
             "explores",
         ],
         image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
@@ -90,7 +92,7 @@ with DAG(
             "analyze",
             "--destination_table",
             "moz-fx-data-shared-prod.monitoring_derived.looker_usage_models_v1",
-            "--date={{ ds }}",
+            DATE_ARG,
             "models",
         ],
         image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
@@ -110,7 +112,7 @@ with DAG(
             "analyze",
             "--destination_table",
             "moz-fx-data-shared-prod.monitoring_derived.looker_usage_unused_explores_v1",
-            "--date={{ ds }}",
+            DATE_ARG,
             "unused-explores",
         ],
         image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
