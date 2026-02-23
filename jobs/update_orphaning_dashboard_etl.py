@@ -973,36 +973,33 @@ state_failure_code_stage_of_concern_dict
 
 # Create an RDD of out of date, of concern telemetry ping startup
 # update state codes along with a dictionary of the count of the codes.
+def _find_first_positive_code_index(code_list, index):
+    """Return the index of the first positive value in code_list[index], or None."""
+    if code_list is None:
+        return None
+    code_index = 0
+    for code_value in code_list[index]:
+        if code_value > 0:
+            return code_index
+        code_index += 1
+    return None
+
+
 def state_code_startup_mapper(d):
     ping = d
     current_version = ping.version[0]
     for index, version in enumerate(ping.version):
-        if ping.update_state_code_partial_startup is not None:
-            code_index = 0
-            for code_value in ping.update_state_code_partial_startup[index]:
-                if code_value > 0:
-                    if version == current_version:
-                        return code_index, ping
-                    return -1, ping
-                code_index += 1
-
-        if ping.update_state_code_complete_startup is not None:
-            code_index = 0
-            for code_value in ping.update_state_code_complete_startup[index]:
-                if code_value > 0:
-                    if version == current_version:
-                        return code_index, ping
-                    return -1, ping
-                code_index += 1
-
-        if ping.update_state_code_unknown_startup is not None:
-            code_index = 0
-            for code_value in ping.update_state_code_unknown_startup[index]:
-                if code_value > 0:
-                    if version == current_version:
-                        return code_index, ping
-                    return -1, ping
-                code_index += 1
+        code_lists = [
+            ping.update_state_code_partial_startup,
+            ping.update_state_code_complete_startup,
+            ping.update_state_code_unknown_startup,
+        ]
+        for code_list in code_lists:
+            result = _find_first_positive_code_index(code_list, index)
+            if result is not None:
+                if version == current_version:
+                    return result, ping
+                return -1, ping
 
     return -2, ping
 
