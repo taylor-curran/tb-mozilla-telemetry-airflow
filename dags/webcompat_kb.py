@@ -45,14 +45,14 @@ every_fifteen_minutes = "*/15 * * * *"
 bugzilla_token = Secret(
     deploy_type="env",
     deploy_target="BUGZILLA_API_KEY",
-    secret="airflow-gke-secrets",
+    secret="airflow-gke-secrets",  # NOSONAR - Kubernetes Secret reference, not a hard-coded credential.
     key="webcompat_kb_secret__bugzilla_api_key",
 )
 
 github_token = Secret(
     deploy_type="env",
     deploy_target="GH_TOKEN",
-    secret="airflow-gke-secrets",
+    secret="airflow-gke-secrets",  # NOSONAR - Kubernetes Secret reference, not a hard-coded credential.
     key="webcompat_kb_secret__gh_token",
 )
 
