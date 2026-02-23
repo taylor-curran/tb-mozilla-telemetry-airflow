@@ -19,6 +19,11 @@ from airflow.providers.google.cloud.operators.dataproc import (
 )
 
 
+DEFAULT_SERVICE_ACCOUNT = (
+    "dataproc-runner-prod@airflow-dataproc.iam.gserviceaccount.com"
+)
+
+
 class DataProcHelper:
     """Helper class for creating/deleting dataproc clusters."""
 
@@ -36,7 +41,7 @@ class DataProcHelper:
         master_machine_type="n1-standard-8",
         worker_machine_type="n1-standard-4",
         num_preemptible_workers=0,
-        service_account="dataproc-runner-prod@airflow-dataproc.iam.gserviceaccount.com",
+        service_account=DEFAULT_SERVICE_ACCOUNT,
         init_actions_uris=None,
         additional_metadata=None,
         additional_properties=None,
@@ -228,7 +233,7 @@ def moz_dataproc_pyspark_runner(
     master_machine_type="n1-standard-8",
     worker_machine_type="n1-standard-4",
     num_preemptible_workers=0,
-    service_account="dataproc-runner-prod@airflow-dataproc.iam.gserviceaccount.com",
+    service_account=DEFAULT_SERVICE_ACCOUNT,
     init_actions_uris=None,
     additional_metadata=None,
     additional_properties=None,
@@ -438,7 +443,7 @@ def moz_dataproc_jar_runner(
     master_machine_type="n1-standard-8",
     worker_machine_type="n1-standard-4",
     num_preemptible_workers=0,
-    service_account="dataproc-runner-prod@airflow-dataproc.iam.gserviceaccount.com",
+    service_account=DEFAULT_SERVICE_ACCOUNT,
     init_actions_uris=None,
     optional_components=None,
     install_component_gateway=True,
@@ -589,7 +594,7 @@ def moz_dataproc_scriptrunner(
     master_machine_type="n1-standard-8",
     worker_machine_type="n1-standard-4",
     num_preemptible_workers=0,
-    service_account="dataproc-runner-prod@airflow-dataproc.iam.gserviceaccount.com",
+    service_account=DEFAULT_SERVICE_ACCOUNT,
     init_actions_uris=None,
     optional_components=None,
     install_component_gateway=True,
@@ -818,7 +823,7 @@ def get_dataproc_parameters(conn_id="google_cloud_airflow_dataproc"):
     client_email = (
         dev_client_email
         if is_dev
-        else "dataproc-runner-prod@airflow-dataproc.iam.gserviceaccount.com"
+        else DEFAULT_SERVICE_ACCOUNT
     )
     artifact_bucket = (
         f"{project_id}-dataproc-artifacts"
