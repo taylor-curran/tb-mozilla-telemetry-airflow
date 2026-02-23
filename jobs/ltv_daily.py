@@ -37,9 +37,18 @@ def train_metric(d, metric, plot=True, penalty=0):
     simulated_counts = pd.DataFrame(
         simulated_data["frequency"].value_counts().sort_index().iloc[:28]
     )
-    combined_counts = model_counts.merge(
-        simulated_counts, how="outer", left_index=True, right_index=True
-    ).fillna(0)
+    combined_counts = (
+        model_counts.rename_axis("freq_value")
+        .reset_index()
+        .merge(
+            simulated_counts.rename_axis("freq_value").reset_index(),
+            how="outer",
+            on="freq_value",
+            validate="one_to_one",
+        )
+        .set_index("freq_value")
+        .fillna(0)
+    )
     combined_counts.columns = ["Actual", "Model"]
     if plot:
         combined_counts.plot.bar()
