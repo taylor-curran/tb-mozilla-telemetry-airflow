@@ -31,16 +31,20 @@ default_args = {
 
 tags = [Tag.ImpactTier.tier_3]
 
+LOOKER_UTILS_IMAGE = "us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest"
+LOOKER_UTILS_MODULE = "looker_utils.main"
+DATE_ARG = "--date={{ ds }}"
+
 looker_client_id_prod = Secret(
     deploy_type="env",
     deploy_target="LOOKER_CLIENT_ID",
-    secret="airflow-gke-secrets",
+    secret="airflow-gke-secrets",  # NOSONAR - Kubernetes Secret reference, not a hard-coded credential.
     key="probe_scraper_secret__looker_api_client_id_prod",
 )
 looker_client_secret_prod = Secret(
     deploy_type="env",
     deploy_target="LOOKER_CLIENT_SECRET",
-    secret="airflow-gke-secrets",
+    secret="airflow-gke-secrets",  # NOSONAR - Kubernetes Secret reference, not a hard-coded credential.
     key="probe_scraper_secret__looker_api_client_secret_prod",
 )
 looker_instance_uri = "https://mozilla.cloud.looker.com"
@@ -66,14 +70,14 @@ with DAG(
         arguments=[
             "python",
             "-m",
-            "looker_utils.main",
+            LOOKER_UTILS_MODULE,
             "analyze",
             "--destination_table",
             "moz-fx-data-shared-prod.monitoring_derived.looker_usage_explores_v1",
-            "--date={{ ds }}",
+            DATE_ARG,
             "explores",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },
@@ -86,14 +90,14 @@ with DAG(
         arguments=[
             "python",
             "-m",
-            "looker_utils.main",
+            LOOKER_UTILS_MODULE,
             "analyze",
             "--destination_table",
             "moz-fx-data-shared-prod.monitoring_derived.looker_usage_models_v1",
-            "--date={{ ds }}",
+            DATE_ARG,
             "models",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },
@@ -106,14 +110,14 @@ with DAG(
         arguments=[
             "python",
             "-m",
-            "looker_utils.main",
+            LOOKER_UTILS_MODULE,
             "analyze",
             "--destination_table",
             "moz-fx-data-shared-prod.monitoring_derived.looker_usage_unused_explores_v1",
-            "--date={{ ds }}",
+            DATE_ARG,
             "unused-explores",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },

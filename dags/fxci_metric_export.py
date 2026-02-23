@@ -35,13 +35,13 @@ secrets = [
     Secret(
         deploy_type="env",
         deploy_target="FXCI_ETL_STORAGE_CREDENTIALS",
-        secret="airflow-gke-secrets",
+        secret="airflow-gke-secrets",  # NOSONAR - Kubernetes Secret reference, not a hard-coded credential.
         key="fxci_etl_secret__gcp-credentials",
     ),
     Secret(
         deploy_type="env",
         deploy_target="FXCI_ETL_MONITORING_CREDENTIALS",
-        secret="airflow-gke-secrets",
+        secret="airflow-gke-secrets",  # NOSONAR - Kubernetes Secret reference, not a hard-coded credential.
         key="fxci_etl_secret__gcp-credentials",
     ),
 ]

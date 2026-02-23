@@ -122,25 +122,25 @@ tags = [Tag.ImpactTier.tier_3]
 EVERFI_INTEG_WORKDAY_USERNAME = Secret(
     deploy_type="env",
     deploy_target="EVERFI_INTEG_WORKDAY_USERNAME",
-    secret="airflow-gke-secrets",
+    secret="airflow-gke-secrets",  # NOSONAR - Kubernetes Secret reference, not a hard-coded credential.
     key="EVERFI_INTEG_WORKDAY_USERNAME",
 )
 EVERFI_INTEG_WORKDAY_PASSWORD = Secret(
     deploy_type="env",
     deploy_target="EVERFI_INTEG_WORKDAY_PASSWORD",
-    secret="airflow-gke-secrets",
+    secret="airflow-gke-secrets",  # NOSONAR - Kubernetes Secret reference, not a hard-coded credential.
     key="EVERFI_INTEG_WORKDAY_PASSWORD",
 )
 EVERFI_USERNAME = Secret(
     deploy_type="env",
     deploy_target="EVERFI_USERNAME",
-    secret="airflow-gke-secrets",
+    secret="airflow-gke-secrets",  # NOSONAR - Kubernetes Secret reference, not a hard-coded credential.
     key="EVERFI_USERNAME",
 )
 EVERFI_PASSWORD = Secret(
     deploy_type="env",
     deploy_target="EVERFI_PASSWORD",
-    secret="airflow-gke-secrets",
+    secret="airflow-gke-secrets",  # NOSONAR - Kubernetes Secret reference, not a hard-coded credential.
     key="EVERFI_PASSWORD",
 )
 
