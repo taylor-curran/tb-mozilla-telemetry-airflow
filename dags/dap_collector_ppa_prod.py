@@ -42,6 +42,7 @@ default_args = {
 project_id = "moz-fx-ads-prod"
 ad_table_id = "ppa.measurements"
 report_table_id = "ppa.reports"
+gke_resource_name = "airflow-gke-secrets"
 
 tags = [
     Tag.ImpactTier.tier_3,
@@ -51,14 +52,14 @@ tags = [
 hpke_private_key = Secret(
     deploy_type="env",
     deploy_target="HPKE_PRIVATE_KEY",
-    secret="airflow-gke-secrets",
+    secret=gke_resource_name,
     key="DAP_PPA_PROD_HPKE_PRIVATE_KEY",
 )
 
 auth_token = Secret(
     deploy_type="env",
     deploy_target="AUTH_TOKEN",
-    secret="airflow-gke-secrets",
+    secret=gke_resource_name,
     key="DAP_PPA_PROD_AUTH_TOKEN",
 )
 
