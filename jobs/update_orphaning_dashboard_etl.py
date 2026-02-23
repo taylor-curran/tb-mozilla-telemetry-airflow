@@ -818,7 +818,6 @@ def check_code_notify_mapper(d):
 
 check_code_notify_of_concern_rdd = of_concern_true_rdd.map(check_code_notify_mapper)
 check_code_notify_of_concern_dict = check_code_notify_of_concern_rdd.countByKey()
-check_code_notify_of_concern_dict
 
 
 # Create an RDD of out of date, of concern telemetry pings that had a
