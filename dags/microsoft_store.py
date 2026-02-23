@@ -8,7 +8,7 @@ from utils.tags import Tag
 
 OWNER_EMAIL = "mhirose@mozilla.com"
 
-# Deploy value associated with Microsoft Store keysin k8s secret `airflow-gke-secrets` in environments Microsoft variables.
+# Deploy value associated with Microsoft Store keys in k8s secret `airflow-gke-secrets` in environments Microsoft variables.
 
 microsoft_client_id = Secret(
     deploy_type="env",
