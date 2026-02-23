@@ -7,6 +7,9 @@ from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
 
+# Kubernetes secret resource name used to inject env vars into GKE pods
+GKE_SECRETS_NAME = "airflow-gke-secrets"
+
 DOCS = """
 ### Workday/Netsuite integration
 Runs a script in docker image that syncs employee data
@@ -165,7 +168,7 @@ NETSUITE_INTEG_NETSUITE_CONSUMER_KEY = Secret(
 NETSUITE_INTEG_NETSUITE_CONSUMER_SECRET = Secret(
     deploy_type="env",
     deploy_target="NETSUITE_INTEG_NETSUITE_CONSUMER_SECRET",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRETS_NAME,
     key="NETSUITE_INTEG_NETSUITE_CONSUMER_SECRET",
 )
 
