@@ -13,9 +13,10 @@ from plugins.version_endpoint import (
 
 
 def test_get_project_root():
-    # CircleCI renames the project directory to `project`
-    assert get_project_root().name in ("telemetry-airflow", "project")
-    assert get_project_root().is_dir()
+    project_root = get_project_root()
+    assert project_root.is_dir()
+    # Verify the returned directory looks like the repository root.
+    assert (project_root / "Dockerfile").is_file()
 
 
 @pytest.mark.parametrize(
