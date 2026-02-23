@@ -44,6 +44,9 @@ looker_client_secret_prod = Secret(
     key="probe_scraper_secret__looker_api_client_secret_prod",
 )
 looker_instance_uri = "https://mozilla.cloud.looker.com"
+LOOKER_UTILS_IMAGE = (
+    "us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest"
+)
 
 
 with DAG(
@@ -73,7 +76,7 @@ with DAG(
             "--date={{ ds }}",
             "explores",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },
@@ -93,7 +96,7 @@ with DAG(
             "--date={{ ds }}",
             "models",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },
@@ -113,7 +116,7 @@ with DAG(
             "--date={{ ds }}",
             "unused-explores",
         ],
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest",
+        image=LOOKER_UTILS_IMAGE,
         env_vars={
             "LOOKER_INSTANCE_URI": looker_instance_uri,
         },
