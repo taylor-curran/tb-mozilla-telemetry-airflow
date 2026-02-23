@@ -45,6 +45,8 @@ looker_client_secret_prod = Secret(
 )
 looker_instance_uri = "https://mozilla.cloud.looker.com"
 
+LOOKER_UTILS_MODULE = "looker_utils.main"
+
 
 with DAG(
     "looker_usage_analysis",
@@ -66,7 +68,7 @@ with DAG(
         arguments=[
             "python",
             "-m",
-            "looker_utils.main",
+            LOOKER_UTILS_MODULE,
             "analyze",
             "--destination_table",
             "moz-fx-data-shared-prod.monitoring_derived.looker_usage_explores_v1",
@@ -86,7 +88,7 @@ with DAG(
         arguments=[
             "python",
             "-m",
-            "looker_utils.main",
+            LOOKER_UTILS_MODULE,
             "analyze",
             "--destination_table",
             "moz-fx-data-shared-prod.monitoring_derived.looker_usage_models_v1",
@@ -106,7 +108,7 @@ with DAG(
         arguments=[
             "python",
             "-m",
-            "looker_utils.main",
+            LOOKER_UTILS_MODULE,
             "analyze",
             "--destination_table",
             "moz-fx-data-shared-prod.monitoring_derived.looker_usage_unused_explores_v1",
