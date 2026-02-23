@@ -7,6 +7,34 @@ from airflow.models.param import Param
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
 
+def _build_optional_args(params):
+    """Build optional arguments for the backfill command."""
+    args = []
+
+    if destination_table := params["destination_table"]:
+        args.append(f"--destination_table={destination_table}")
+
+    if excludes := params["exclude"]:
+        for exclude in excludes:
+            args.extend(["--exclude", exclude])
+
+    if scheduling_overrides := params["scheduling_overrides"]:
+        args.extend(["--scheduling_overrides", json.dumps(scheduling_overrides)])
+
+    if params["dry_run"]:
+        args.append("--dry_run")
+
+    args.append("--checks" if params["run_checks"] else "--no-checks")
+
+    if params["override_retention_range_limit"]:
+        args.append("--override-retention-range-limit")
+
+    if billing_project := params["billing_project"]:
+        args.append(f"--billing-project={billing_project}")
+
+    return args
+
+
 doc_md = """
 # Bqetl Backfill DAG
 
@@ -135,48 +163,27 @@ def bqetl_backfill_dag():
     @task
     def generate_backfill_command(**context):
         """Generate backfill command with arguments."""
+        params = context["params"]
         cmd = [
             "bqetl",
             "query",
             "backfill",
-            context["params"]["table_name"],
+            params["table_name"],
             "--sql_dir",
-            context["params"]["sql_dir"],
+            params["sql_dir"],
             "--project_id",
-            context["params"]["project_id"],
+            params["project_id"],
             "--start_date",
-            context["params"]["start_date"],
+            params["start_date"],
             "--end_date",
-            context["params"]["end_date"],
+            params["end_date"],
             "--max_rows",
-            str(context["params"]["max_rows"]),
+            str(params["max_rows"]),
             "--parallelism",
-            str(context["params"]["parallelism"]),
+            str(params["parallelism"]),
         ]
 
-        if destination_table := context["params"]["destination_table"]:
-            cmd.append(f"--destination_table={destination_table}")
-
-        if excludes := context["params"]["exclude"]:
-            for exclude in excludes:
-                cmd.extend(["--exclude", exclude])
-
-        if scheduling_overrides := context["params"]["scheduling_overrides"]:
-            cmd.extend(["--scheduling_overrides", json.dumps(scheduling_overrides)])
-
-        if context["params"]["dry_run"]:
-            cmd.append("--dry_run")
-
-        if context["params"]["run_checks"]:
-            cmd.append("--checks")
-        else:
-            cmd.append("--no-checks")
-
-        if context["params"]["override_retention_range_limit"]:
-            cmd.append("--override-retention-range-limit")
-
-        if billing_project := context["params"]["billing_project"]:
-            cmd.append(f"--billing-project={billing_project}")
+        cmd.extend(_build_optional_args(params))
 
         if not all(isinstance(c, str) for c in cmd):
             raise Exception(
