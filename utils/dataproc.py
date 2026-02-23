@@ -1,5 +1,6 @@
 import os
 from collections import namedtuple
+from dataclasses import dataclass
 
 from airflow import models
 from airflow.exceptions import AirflowException
@@ -213,41 +214,90 @@ class DataProcHelper:
 # End DataProcHelper
 
 
+@dataclass
+class DataprocClusterConfig:
+    """
+    Configuration for a Dataproc cluster.
+
+    Groups cluster infrastructure, connection, and job parameters into a single
+    data structure to keep runner function signatures concise.
+
+    :param str cluster_name:              The name of the dataproc cluster.
+    :param str job_name:                  Name of the spark job to run.
+    :param int num_workers:               The number of spark workers.
+    :param str image_version:             The image version of software to use for dataproc
+                                          cluster.
+    :param str region:                    Region where the dataproc cluster will be located.
+                                          Zone will be chosen automatically.
+    :param str subnetwork_uri:            The subnetwork uri to be used for machine communication,
+                                          cannot be specified with network_uri.
+    :param bool internal_ip_only:         If True, cluster nodes will only have internal IP
+                                          addresses.
+    :param int idle_delete_ttl:           The duration in seconds to keep idle cluster alive.
+    :param int auto_delete_ttl:           The duration in seconds that the cluster will live.
+    :param str master_machine_type:       Compute engine machine type to use for master.
+    :param str worker_machine_type:       Compute engine machine type to use for the workers.
+    :param int num_preemptible_workers:   Number of preemptible worker nodes to spin up.
+    :param str service_account:           The service account for spark VMs to use.
+    :param list init_actions_uris:        List of GCS uri's containing dataproc init scripts.
+    :param dict additional_metadata:      Custom metadata keys and values.
+    :param dict additional_properties:    Custom cluster properties.
+    :param list optional_components:      List of optional components to install on cluster.
+    :param bool install_component_gateway: Enable alpha feature component gateway.
+    :param str aws_conn_id:               Airflow connection id for S3 access (if needed).
+    :param str gcp_conn_id:               The connection ID to use connecting to GCP.
+    :param str project_id:                The project ID corresponding to the gcp_conn_id.
+    :param str artifact_bucket:           Path to resources for bootstrapping the dataproc cluster.
+    :param str storage_bucket:            Path to scratch bucket for intermediate cluster results.
+    :param str master_disk_type:          Type of the boot disk for the master node.
+    :param str worker_disk_type:          Type of the boot disk for the worker node.
+    :param int master_disk_size:          Disk size for the master node.
+    :param int worker_disk_size:          Disk size for the worker node.
+    :param int master_num_local_ssds:     Number of local SSDs to mount on master.
+    :param int worker_num_local_ssds:     Number of local SSDs to mount on workers.
+    """
+
+    cluster_name: str | None = None
+    job_name: str | None = None
+    num_workers: int = 2
+    image_version: str = "1.4-debian10"
+    region: str = "us-west1"
+    subnetwork_uri: str | None = None
+    internal_ip_only: bool | None = None
+    idle_delete_ttl: int = 10800
+    auto_delete_ttl: int = 21600
+    master_machine_type: str = "n1-standard-8"
+    worker_machine_type: str = "n1-standard-4"
+    num_preemptible_workers: int = 0
+    service_account: str = (
+        "dataproc-runner-prod@airflow-dataproc.iam.gserviceaccount.com"
+    )
+    init_actions_uris: list[str] | None = None
+    additional_metadata: dict[str, str] | None = None
+    additional_properties: dict[str, str] | None = None
+    optional_components: list[str] | None = None
+    install_component_gateway: bool = True
+    aws_conn_id: str | None = None
+    gcp_conn_id: str = "google_cloud_airflow_dataproc"
+    project_id: str = "airflow-dataproc"
+    artifact_bucket: str = "moz-fx-data-prod-airflow-dataproc-artifacts"
+    storage_bucket: str = "moz-fx-data-prod-dataproc-scratch"
+    master_disk_type: str = "pd-standard"
+    worker_disk_type: str = "pd-standard"
+    master_disk_size: int = 1024
+    worker_disk_size: int = 1024
+    master_num_local_ssds: int = 0
+    worker_num_local_ssds: int = 0
+
+
 def moz_dataproc_pyspark_runner(
     parent_dag_name=None,
     dag_name="run_pyspark_on_dataproc",
     default_args=None,
-    cluster_name=None,
-    num_workers=2,
-    image_version="1.4-debian10",
-    region="us-west1",
-    subnetwork_uri=None,
-    internal_ip_only=None,
-    idle_delete_ttl=10800,
-    auto_delete_ttl=21600,
-    master_machine_type="n1-standard-8",
-    worker_machine_type="n1-standard-4",
-    num_preemptible_workers=0,
-    service_account="dataproc-runner-prod@airflow-dataproc.iam.gserviceaccount.com",
-    init_actions_uris=None,
-    additional_metadata=None,
-    additional_properties=None,
-    optional_components=None,
-    install_component_gateway=True,
+    cluster_config=None,
     python_driver_code=None,
     py_args=None,
-    job_name=None,
-    aws_conn_id=None,
-    gcp_conn_id="google_cloud_airflow_dataproc",
-    project_id="airflow-dataproc",
-    artifact_bucket="moz-fx-data-prod-airflow-dataproc-artifacts",
-    storage_bucket="moz-fx-data-prod-dataproc-scratch",
-    master_disk_type="pd-standard",
-    worker_disk_type="pd-standard",
-    master_disk_size=1024,
-    worker_disk_size=1024,
-    master_num_local_ssds=0,
-    worker_num_local_ssds=0,
+    **kwargs,
 ):
     """
     Create a GCP Dataproc cluster with Anaconda/Jupyter/Component gateway.
@@ -269,12 +319,15 @@ def moz_dataproc_pyspark_runner(
             subdag = moz_dataproc_pyspark_runner(
                 parent_dag_name=dag.dag_id,
                 dag_name='run_dataproc_pyspark',
-                job_name='Do_something_on_pyspark',
                 default_args=default_args,
-                cluster_name=cluster_name,
+                cluster_config=DataprocClusterConfig(
+                    job_name='Do_something_on_pyspark',
+                    cluster_name=cluster_name,
+                    gcp_conn_id=gcp_conn_id,
+                ),
                 python_driver_code='gs://some_bucket/some_py_script.py',
                 py_args=["-d", "{{ ds_nodash }}"],
-                gcp_conn_id=gcp_conn_id)
+            )
         )
 
     Airflow related args:
@@ -283,69 +336,13 @@ def moz_dataproc_pyspark_runner(
     :param str dag_name:                  Dag name.
     :param dict default_args:             Dag configuration.
 
-    Dataproc Cluster related args:
+    Cluster config:
     ---
-    :param str cluster_name:              The name of the dataproc cluster.
-    :param int num_workers:               The number of spark workers.
-    :param str image_version:             The image version of software to use for dataproc
-                                          cluster.
-    :param str region:                    Region where the dataproc cluster will be located.
-                                          Zone will be chosen automatically
-    :param str subnetwork_uri:            The subnetwork uri to be used for machine communication,
-                                          cannot be specified with network_uri. Only need this if
-                                          setting internal_ip_only = True. (See next parameter)
-    :param bool internal_ip_only:         If True, cluster nodes will only have internal IP addresses.
-                                          Can only be enabled with subnetwork_uri enabled networks.
-                                          We use this for NAT'd dataproc clusters whose outbound traffic
-                                          needs to be whitelisted. To use a NAT'd cluster, set
-                                          subnetwork_uri='default', internal_ip_only=True, and
-                                          region=us-west2-a|b|c
-    :param int idle_delete_ttl:           The duration in seconds to keep idle cluster alive.
-    :param int auto_delete_ttl:           The duration in seconds that the cluster will live.
-    :param str master_machine_type:       Compute engine machine type to use for master.
-    :param str worker_machine_type:       Compute engine machine type to use for the workers.
-    :param int num_preemptible_workers:   Number of preemptible worker nodes to spin up.
-    :param str service_account:           The service account for spark VMs to use. For example
-                                          if cross project access is needed. Note that this svc
-                                          account needs the following permissions:
-                                          roles/logging.logWriter and roles/storage.objectAdmin.
-    :param list init_actions_uris:        List of GCS uri's containing dataproc init scripts.
-    :param dict additional_metadata       Custom metadata keys and values, might be used to
-                                          configure initialization actions.
-    :param dict additional_properties     Custom cluster properties, can be used to configure
-                                          cluster components, add Spark packages, etc.
-    :param str job_name:                  Name of the spark job to run.
-
-    :param str aws_conn_id:               Airflow connection id for S3 access (if needed).
-    :param str gcp_conn_id:               The connection ID to use connecting to GCP.
-    :param str project_id:                The project ID corresponding to the gcp_conn_id. We
-                                          add this because the dev environment doesn't parse it out
-                                          correctly from the dummy connections.
-    :param str artifact_bucket:           Path to resources for bootstrapping the dataproc cluster
-    :param str storage_bucket:            Path to scratch bucket for intermediate cluster results
-    :param list optional_components:      List of optional components to install on cluster
-                                          Defaults to ['ANACONDA'] for now since JUPYTER is broken.
-    :param str install_component_gateway: Enable alpha feature component gateway.
-    :param master_disk_type:              Type of the boot disk for the master node
-                                            (default is ``pd-standard``).
-                                            Valid values: ``pd-ssd`` (Persistent Disk Solid State Drive) or
-                                            ``pd-standard`` (Persistent Disk Hard Disk Drive).
-    :type master_disk_type: str
-    :param master_disk_size:              Disk size for the master node
-    :type master_disk_size: int
-    :param master_num_local_ssds : Number of local SSDs to mount
-        (default is 0)
-    :type master_num_local_ssds : int
-    :param worker_disk_type:              Type of the boot disk for the worker node
-                                            (default is ``pd-standard``).
-                                            Valid values: ``pd-ssd`` (Persistent Disk Solid State Drive) or
-                                            ``pd-standard`` (Persistent Disk Hard Disk Drive).
-    :type worker_disk_type: str
-    :param worker_disk_size:              Disk size for the worker node
-    :type worker_disk_size: int
-    :param worker_num_local_ssds : Number of local SSDs to mount
-        (default is 0)
-    :type worker_num_local_ssds : int
+    :param DataprocClusterConfig cluster_config:
+        A DataprocClusterConfig instance holding all cluster, connection, and
+        job parameters.  When *cluster_config* is ``None`` (the default), one is
+        built automatically from any extra ``**kwargs`` passed to this function,
+        preserving full backward compatibility with the old keyword-argument API.
 
     Pyspark related args:
     ---
@@ -355,39 +352,42 @@ def moz_dataproc_pyspark_runner(
 
     """
 
-    if cluster_name is None or python_driver_code is None:
+    if cluster_config is None:
+        cluster_config = DataprocClusterConfig(**kwargs)
+
+    if cluster_config.cluster_name is None or python_driver_code is None:
         raise AirflowException("Please specify cluster_name and/or python_driver_code.")
 
     dataproc_helper = DataProcHelper(
-        cluster_name=cluster_name,
-        job_name=job_name,
-        num_workers=num_workers,
-        image_version=image_version,
-        region=region,
-        subnetwork_uri=subnetwork_uri,
-        internal_ip_only=internal_ip_only,
-        idle_delete_ttl=idle_delete_ttl,
-        auto_delete_ttl=auto_delete_ttl,
-        master_machine_type=master_machine_type,
-        worker_machine_type=worker_machine_type,
-        num_preemptible_workers=num_preemptible_workers,
-        service_account=service_account,
-        init_actions_uris=init_actions_uris,
-        optional_components=optional_components,
-        additional_metadata=additional_metadata,
-        additional_properties=additional_properties,
-        install_component_gateway=install_component_gateway,
-        aws_conn_id=aws_conn_id,
-        gcp_conn_id=gcp_conn_id,
-        project_id=project_id,
-        artifact_bucket=artifact_bucket,
-        storage_bucket=storage_bucket,
-        master_disk_type=master_disk_type,
-        master_disk_size=master_disk_size,
-        worker_disk_type=worker_disk_type,
-        worker_disk_size=worker_disk_size,
-        master_num_local_ssds=master_num_local_ssds,
-        worker_num_local_ssds=worker_num_local_ssds,
+        cluster_name=cluster_config.cluster_name,
+        job_name=cluster_config.job_name,
+        num_workers=cluster_config.num_workers,
+        image_version=cluster_config.image_version,
+        region=cluster_config.region,
+        subnetwork_uri=cluster_config.subnetwork_uri,
+        internal_ip_only=cluster_config.internal_ip_only,
+        idle_delete_ttl=cluster_config.idle_delete_ttl,
+        auto_delete_ttl=cluster_config.auto_delete_ttl,
+        master_machine_type=cluster_config.master_machine_type,
+        worker_machine_type=cluster_config.worker_machine_type,
+        num_preemptible_workers=cluster_config.num_preemptible_workers,
+        service_account=cluster_config.service_account,
+        init_actions_uris=cluster_config.init_actions_uris,
+        optional_components=cluster_config.optional_components,
+        additional_metadata=cluster_config.additional_metadata,
+        additional_properties=cluster_config.additional_properties,
+        install_component_gateway=cluster_config.install_component_gateway,
+        aws_conn_id=cluster_config.aws_conn_id,
+        gcp_conn_id=cluster_config.gcp_conn_id,
+        project_id=cluster_config.project_id,
+        artifact_bucket=cluster_config.artifact_bucket,
+        storage_bucket=cluster_config.storage_bucket,
+        master_disk_type=cluster_config.master_disk_type,
+        master_disk_size=cluster_config.master_disk_size,
+        worker_disk_type=cluster_config.worker_disk_type,
+        worker_disk_size=cluster_config.worker_disk_size,
+        master_num_local_ssds=cluster_config.master_num_local_ssds,
+        worker_num_local_ssds=cluster_config.worker_num_local_ssds,
     )
 
     _dag_name = f"{parent_dag_name}.{dag_name}"
@@ -398,10 +398,10 @@ def moz_dataproc_pyspark_runner(
         dataproc_job_builder = DataProcJobBuilder(
             job_type="pyspark_job",
             task_id="run_dataproc_pyspark",
-            cluster_name=cluster_name,
-            project_id=project_id,
+            cluster_name=cluster_config.cluster_name,
+            project_id=cluster_config.project_id,
         )
-        dataproc_job_builder.set_job_name(job_name)
+        dataproc_job_builder.set_job_name(cluster_config.job_name)
         dataproc_job_builder.set_python_main(python_driver_code)
         dataproc_job_builder.add_args(py_args)
         dataproc_job = dataproc_job_builder.build()
@@ -409,9 +409,9 @@ def moz_dataproc_pyspark_runner(
         run_pyspark_on_dataproc = DataprocSubmitJobOperator(
             task_id="run_dataproc_pyspark",
             job=dataproc_job["job"],
-            region=region,
-            gcp_conn_id=gcp_conn_id,
-            project_id=project_id,
+            region=cluster_config.region,
+            gcp_conn_id=cluster_config.gcp_conn_id,
+            project_id=cluster_config.project_id,
         )
 
         delete_dataproc_cluster = dataproc_helper.delete_cluster()
