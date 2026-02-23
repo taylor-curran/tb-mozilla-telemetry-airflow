@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import os
 from collections import namedtuple
+from dataclasses import dataclass
 
 from airflow import models
 from airflow.exceptions import AirflowException
@@ -211,6 +214,39 @@ class DataProcHelper:
 
 
 # End DataProcHelper
+
+
+@dataclass
+class DataprocClusterConfig:
+    """Configuration for a Dataproc cluster, grouping cluster-related parameters."""
+
+    cluster_name: str | None = None
+    job_name: str | None = None
+    num_workers: int = 2
+    image_version: str = "1.4-debian10"
+    region: str = "us-west1"
+    subnetwork_uri: str | None = None
+    internal_ip_only: bool | None = None
+    idle_delete_ttl: int = 14400
+    auto_delete_ttl: int = 28800
+    master_machine_type: str = "n1-standard-8"
+    worker_machine_type: str = "n1-standard-4"
+    num_preemptible_workers: int = 0
+    service_account: str = "dataproc-runner-prod@airflow-dataproc.iam.gserviceaccount.com"
+    init_actions_uris: list[str] | None = None
+    optional_components: list[str] | None = None
+    install_component_gateway: bool = True
+    aws_conn_id: str | None = None
+    gcp_conn_id: str = "google_cloud_airflow_dataproc"
+    project_id: str = "airflow-dataproc"
+    artifact_bucket: str = "moz-fx-data-prod-airflow-dataproc-artifacts"
+    storage_bucket: str = "moz-fx-data-prod-dataproc-scratch"
+    master_disk_type: str = "pd-standard"
+    master_disk_size: int = 1024
+    master_num_local_ssds: int = 0
+    worker_disk_type: str = "pd-standard"
+    worker_disk_size: int = 1024
+    worker_num_local_ssds: int = 0
 
 
 def moz_dataproc_pyspark_runner(
@@ -427,34 +463,10 @@ def moz_dataproc_jar_runner(
     parent_dag_name=None,
     dag_name="run_script_on_dataproc",
     default_args=None,
-    cluster_name=None,
-    num_workers=2,
-    image_version="1.4-debian10",
-    region="us-west1",
-    subnetwork_uri=None,
-    internal_ip_only=None,
-    idle_delete_ttl=14400,
-    auto_delete_ttl=28800,
-    master_machine_type="n1-standard-8",
-    worker_machine_type="n1-standard-4",
-    num_preemptible_workers=0,
-    service_account="dataproc-runner-prod@airflow-dataproc.iam.gserviceaccount.com",
-    init_actions_uris=None,
-    optional_components=None,
-    install_component_gateway=True,
+    cluster_config=None,
     jar_urls=None,
     main_class=None,
     jar_args=None,
-    job_name=None,
-    aws_conn_id=None,
-    gcp_conn_id="google_cloud_airflow_dataproc",
-    project_id="airflow-dataproc",
-    master_disk_type="pd-standard",
-    worker_disk_type="pd-standard",
-    master_disk_size=1024,
-    worker_disk_size=1024,
-    master_num_local_ssds=0,
-    worker_num_local_ssds=0,
 ):
     """
     Create a GCP Dataproc cluster with Anaconda/Jupyter/Component gateway.
@@ -470,28 +482,38 @@ def moz_dataproc_jar_runner(
         # Defined in Airflow's UI -> Admin -> Connections
         gcp_conn_id = 'google_cloud_airflow_dataproc'
 
+        cluster_config = DataprocClusterConfig(
+            cluster_name=cluster_name,
+            job_name='Run_some_spark_jar_on_dataproc',
+            gcp_conn_id=gcp_conn_id,
+        )
+
         run_dataproc_jar = SubDagOperator(
             task_id='run_dataproc_jar',
             dag=dag,
             subdag = moz_dataproc_jar_runner(
                 parent_dag_name=dag.dag_id,
                 dag_name='run_dataproc_jar',
-                job_name='Run_some_spark_jar_on_dataproc',
                 default_args=default_args,
-                cluster_name=cluster_name,
+                cluster_config=cluster_config,
                 jar_urls=['gs://some_bucket/some_jar.jar'],
                 main_class='com.mozilla.path.to.ClassName',
-                jar_args=["-d", "{{ ds_nodash }}"],
-                gcp_conn_id=gcp_conn_id)
+                jar_args=["-d", "{{ ds_nodash }}"])
         )
 
     Airflow related args:
     ---
-    See moz_dataproc_pyspark_runner
+    :param str parent_dag_name:           Parent dag name.
+    :param str dag_name:                  Dag name.
+    :param dict default_args:             Dag configuration.
 
     Dataproc Cluster related args:
     ---
-    See moz_dataproc_pyspark_runner
+    :param DataprocClusterConfig cluster_config:
+        Configuration object for the Dataproc cluster. Groups all cluster-related
+        parameters including cluster_name, job_name, num_workers, region, machine
+        types, disk settings, connection IDs, etc. See DataprocClusterConfig for
+        full list of fields and defaults.
 
     Jar runner related args:
     ---
@@ -502,37 +524,40 @@ def moz_dataproc_jar_runner(
 
     """
 
-    if cluster_name is None or jar_urls is None or main_class is None:
+    if cluster_config is None:
+        cluster_config = DataprocClusterConfig()
+
+    if cluster_config.cluster_name is None or jar_urls is None or main_class is None:
         raise AirflowException(
-            "Please specify cluster_name, jar_urls, and/or main_class."
+            "Please specify cluster_config.cluster_name, jar_urls, and/or main_class."
         )
 
     dataproc_helper = DataProcHelper(
-        cluster_name=cluster_name,
-        job_name=job_name,
-        num_workers=num_workers,
-        image_version=image_version,
-        region=region,
-        subnetwork_uri=subnetwork_uri,
-        internal_ip_only=internal_ip_only,
-        idle_delete_ttl=idle_delete_ttl,
-        auto_delete_ttl=auto_delete_ttl,
-        master_machine_type=master_machine_type,
-        worker_machine_type=worker_machine_type,
-        num_preemptible_workers=num_preemptible_workers,
-        service_account=service_account,
-        init_actions_uris=init_actions_uris,
-        optional_components=optional_components,
-        install_component_gateway=install_component_gateway,
-        aws_conn_id=aws_conn_id,
-        gcp_conn_id=gcp_conn_id,
-        project_id=project_id,
-        master_disk_type=master_disk_type,
-        master_disk_size=master_disk_size,
-        worker_disk_type=worker_disk_type,
-        worker_disk_size=worker_disk_size,
-        master_num_local_ssds=master_num_local_ssds,
-        worker_num_local_ssds=worker_num_local_ssds,
+        cluster_name=cluster_config.cluster_name,
+        job_name=cluster_config.job_name,
+        num_workers=cluster_config.num_workers,
+        image_version=cluster_config.image_version,
+        region=cluster_config.region,
+        subnetwork_uri=cluster_config.subnetwork_uri,
+        internal_ip_only=cluster_config.internal_ip_only,
+        idle_delete_ttl=cluster_config.idle_delete_ttl,
+        auto_delete_ttl=cluster_config.auto_delete_ttl,
+        master_machine_type=cluster_config.master_machine_type,
+        worker_machine_type=cluster_config.worker_machine_type,
+        num_preemptible_workers=cluster_config.num_preemptible_workers,
+        service_account=cluster_config.service_account,
+        init_actions_uris=cluster_config.init_actions_uris,
+        optional_components=cluster_config.optional_components,
+        install_component_gateway=cluster_config.install_component_gateway,
+        aws_conn_id=cluster_config.aws_conn_id,
+        gcp_conn_id=cluster_config.gcp_conn_id,
+        project_id=cluster_config.project_id,
+        master_disk_type=cluster_config.master_disk_type,
+        master_disk_size=cluster_config.master_disk_size,
+        worker_disk_type=cluster_config.worker_disk_type,
+        worker_disk_size=cluster_config.worker_disk_size,
+        master_num_local_ssds=cluster_config.master_num_local_ssds,
+        worker_num_local_ssds=cluster_config.worker_num_local_ssds,
     )
 
     _dag_name = f"{parent_dag_name}.{dag_name}"
@@ -543,21 +568,21 @@ def moz_dataproc_jar_runner(
         dataproc_job_builder = DataProcJobBuilder(
             job_type="spark_job",
             task_id="run_jar_on_dataproc",
-            cluster_name=cluster_name,
-            project_id=project_id,
+            cluster_name=cluster_config.cluster_name,
+            project_id=cluster_config.project_id,
         )
-        dataproc_job_builder.set_job_name(job_name)
+        dataproc_job_builder.set_job_name(cluster_config.job_name)
         dataproc_job_builder.add_jar_file_uris(jar_urls)
         dataproc_job_builder.set_main(main_class=main_class)
         dataproc_job_builder.add_args(jar_args)
         dataproc_job = dataproc_job_builder.build()
 
         run_jar_on_dataproc = DataprocSubmitJobOperator(
-            region=region,
+            region=cluster_config.region,
             task_id="run_jar_on_dataproc",
             job=dataproc_job["job"],
-            gcp_conn_id=gcp_conn_id,
-            project_id=project_id,
+            gcp_conn_id=cluster_config.gcp_conn_id,
+            project_id=cluster_config.project_id,
         )
 
         delete_dataproc_cluster = dataproc_helper.delete_cluster()
