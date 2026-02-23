@@ -92,7 +92,7 @@ with DAG(
         task_id="ads_newtab_attribution",
         arguments=[
             "python",
-            "-m"
+            "-m",
             "ads_attribution_dap_collector.main",
             "--bq_project",
             bq_project,
