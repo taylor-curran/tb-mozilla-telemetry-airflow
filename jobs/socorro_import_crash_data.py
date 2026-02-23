@@ -100,6 +100,14 @@ def replace_definitions(schema, definitions):
         raise ValueError(err_msg)
 
 
+def _build_struct(schema):
+    """Build a StructType from a schema's properties via get_rows."""
+    struct = StructType()
+    for row in get_rows(schema):
+        struct.add(row)
+    return struct
+
+
 def get_rows(schema):
     """Map the fields in a JSON schema to corresponding data structures in pyspark."""
 
@@ -121,15 +129,9 @@ def get_rows(schema):
             # Assuming strings in the array
             yield StructField(prop, ArrayType(StringType(), False), True)
         elif meta["type"] == "array" and "items" in meta:
-            struct = StructType()
-            for row in get_rows(meta["items"]):
-                struct.add(row)
-            yield StructField(prop, ArrayType(struct), True)
+            yield StructField(prop, ArrayType(_build_struct(meta["items"])), True)
         elif meta["type"] == "object":
-            struct = StructType()
-            for row in get_rows(meta):
-                struct.add(row)
-            yield StructField(prop, struct, True)
+            yield StructField(prop, _build_struct(meta), True)
         else:
             err_msg = f"Invalid JSON schema: {str(meta)[:100]}"
             log.error(err_msg)
