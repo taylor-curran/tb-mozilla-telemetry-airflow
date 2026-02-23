@@ -6,9 +6,8 @@ from airflow import DAG
 from airflow.hooks.base import BaseHook
 from airflow.operators.email import EmailOperator
 from airflow.providers.cncf.kubernetes.secret import Secret
-from kubernetes.client import models as k8s
 from airflow.utils.task_group import TaskGroup
-
+from kubernetes.client import models as k8s
 
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
@@ -21,6 +20,8 @@ DOCS = """\
 """
 
 SUPPORTED_LANGUAGES = ["en", "fr", "de", "it", "pl"]
+
+_DISCO_TEAM_EMAIL = "disco-team@mozilla.com"
 
 
 def merino_job(
@@ -51,19 +52,19 @@ def merino_job(
         email=[
             "asobiepanek@mozilla.com",
             "najiang@mozilla.com",
-            "disco-team@mozilla.com",
+            _DISCO_TEAM_EMAIL,
         ],
         **kwargs,
     )
 
 
 default_args = {
-    "owner": "disco-team@mozilla.com",
+    "owner": _DISCO_TEAM_EMAIL,
     "start_date": datetime.datetime(2023, 2, 1),
     "email": [
         "asobiepanek@mozilla.com",
         "najiang@mozilla.com",
-        "disco-team@mozilla.com",
+        _DISCO_TEAM_EMAIL,
     ],
     "email_on_failure": True,
     "email_on_retry": True,
@@ -240,7 +241,7 @@ with DAG(
 
     on_domain_success = EmailOperator(
         task_id="email_on_domain_success",
-        to=["disco-team@mozilla.com"],
+        to=[_DISCO_TEAM_EMAIL],
         subject="Navigational Suggestions Domain Metadata job successful",
         html_content="""
         Job completed. Download the new top picks json file on GCS.

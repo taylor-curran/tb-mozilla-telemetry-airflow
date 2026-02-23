@@ -66,6 +66,8 @@ dag = DAG(
     tags=tags,
 )
 docker_image = "gcr.io/moz-fx-data-airflow-prod-88e0/bigquery-etl:latest"
+_BILLING_PROJECT_BATCH = "--billing-project=moz-fx-data-bq-batch-prod"
+_DESKTOP_METRICS_TABLE = "firefox_desktop_stable.metrics_v1"
 base_command = [
     "script/shredder_delete",
     "--state-table=moz-fx-data-shredder.shredder_state.shredder_state",
@@ -129,7 +131,7 @@ flat_rate = GKEPodOperator(
     arguments=[
         *base_command,
         "--parallelism={{ var.value.get('shredder_all_parallelism', 3) }}",
-        "--billing-project=moz-fx-data-bq-batch-prod",
+        _BILLING_PROJECT_BATCH,
         "--except",
         # main
         "telemetry_stable.main_v5",
@@ -137,7 +139,7 @@ flat_rate = GKEPodOperator(
         # sampling
         "telemetry_derived.event_events_v1",
         "firefox_desktop_derived.events_stream_v1",
-        "firefox_desktop_stable.metrics_v1",
+        _DESKTOP_METRICS_TABLE,
         # force no dml
         "telemetry_derived.cohort_weekly_active_clients_staging_v1",
         "glean_telemetry_derived.cohort_weekly_active_clients_staging_v1",
@@ -158,7 +160,7 @@ experiments = GKEPodOperator(
     arguments=[
         *base_command,
         "--parallelism=6",
-        "--billing-project=moz-fx-data-bq-batch-prod",
+        _BILLING_PROJECT_BATCH,
         "--environment=experiments",
     ],
     container_resources=k8s.V1ResourceRequirements(
@@ -178,7 +180,7 @@ with_sampling = GKEPodOperator(
         "--sampling-parallelism={{ var.value.get('shredder_w_sampling_sampling_parallelism', 2) }}",
         "--sampling-batch-size={{ var.value.get('shredder_w_sampling_sampling_batch_size', 1) }}",
         "--temp-dataset=moz-fx-data-shredder.shredder_tmp",
-        "--billing-project=moz-fx-data-bq-batch-prod",
+        _BILLING_PROJECT_BATCH,
         "--only",
         "telemetry_derived.event_events_v1",
         "firefox_desktop_derived.events_stream_v1",
@@ -205,9 +207,9 @@ desktop_metrics = GKEPodOperator(
         "--billing-project=moz-fx-data-shared-prod",
         "--reservation-override=projects/moz-fx-bigquery-reserv-global/locations/US/reservations/shredder-desktop-metrics",
         "--only",
-        "firefox_desktop_stable.metrics_v1",
+        _DESKTOP_METRICS_TABLE,
         "--sampling-tables",
-        "firefox_desktop_stable.metrics_v1",
+        _DESKTOP_METRICS_TABLE,
     ],
     container_resources=k8s.V1ResourceRequirements(
         requests={"memory": "512Mi"},
@@ -223,7 +225,7 @@ force_no_dml = GKEPodOperator(
     arguments=[
         *base_command,
         "--parallelism=1",
-        "--billing-project=moz-fx-data-bq-batch-prod",
+        _BILLING_PROJECT_BATCH,
         "--max-single-dml-bytes=1",
         "--only",
         "telemetry_derived.cohort_weekly_active_clients_staging_v1",
@@ -238,7 +240,7 @@ column_removal = GKEPodOperator(
     arguments=[
         *base_command,
         "--parallelism=3",
-        "--billing-project=moz-fx-data-bq-batch-prod",
+        _BILLING_PROJECT_BATCH,
         "--only",
         *column_removal_backfill_tables,
     ],
