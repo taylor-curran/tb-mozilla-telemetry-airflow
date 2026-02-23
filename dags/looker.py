@@ -25,9 +25,11 @@ and the task re-run.
 
 DEFAULT_LOOKML_GENERATOR_IMAGE_VERSION = "v1.17.0"
 
+_OWNER_EMAIL = "ascholtz@mozilla.com"
+
 
 default_args = {
-    "owner": "ascholtz@mozilla.com",
+    "owner": _OWNER_EMAIL,
     "depends_on_past": False,
     "start_date": datetime(2024, 5, 21),
     "email_on_failure": True,
@@ -112,9 +114,9 @@ with DAG(
         image_tag = DEFAULT_LOOKML_GENERATOR_IMAGE_VERSION
 
     lookml_generator_prod = GKEPodOperator(
-        owner="ascholtz@mozilla.com",
+        owner=_OWNER_EMAIL,
         email=[
-            "ascholtz@mozilla.com",
+            _OWNER_EMAIL,
             "telemetry-alerts@mozilla.com",
         ],
         task_id="lookml_generator",
@@ -143,9 +145,9 @@ with DAG(
     )
 
     lookml_generator_staging = GKEPodOperator(
-        owner="ascholtz@mozilla.com",
+        owner=_OWNER_EMAIL,
         email=[
-            "ascholtz@mozilla.com",
+            _OWNER_EMAIL,
             "telemetry-alerts@mozilla.com",
         ],
         task_id="lookml_generator_staging",
@@ -176,9 +178,9 @@ with DAG(
     ]
 
     validate_content_spectacles = GKEPodOperator(
-        owner="ascholtz@mozilla.com",
+        owner=_OWNER_EMAIL,
         email=[
-            "ascholtz@mozilla.com",
+            _OWNER_EMAIL,
             "telemetry-alerts@mozilla.com",
         ],
         task_id="validate_content_spectacles",
@@ -201,9 +203,9 @@ with DAG(
     )
 
     validate_lookml_spoke_default_spectacles = GKEPodOperator(
-        owner="ascholtz@mozilla.com",
+        owner=_OWNER_EMAIL,
         email=[
-            "ascholtz@mozilla.com",
+            _OWNER_EMAIL,
             "telemetry-alerts@mozilla.com",
         ],
         task_id="validate_lookml_spoke_default_spectacles",
