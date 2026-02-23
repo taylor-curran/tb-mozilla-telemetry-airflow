@@ -47,7 +47,6 @@ dag = DAG(
     tags=tags,
 )
 
-# docker_image = 'us-west1-docker.pkg.dev/moz-fx-data-airflow-prod-88e0/data-science-artifacts/gke-pod-clean:1.3'
 docker_image = "gcr.io/moz-fx-data-airflow-prod-88e0/gke-pod-clean:1.4"
 gke_cluster_name = "workloads-prod-v1"
 gke_location = "us-west1"
