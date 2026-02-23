@@ -24,6 +24,7 @@ and the task re-run.
 """
 
 DEFAULT_LOOKML_GENERATOR_IMAGE_VERSION = "v1.17.0"
+LOOKML_GENERATOR_LATEST_IMAGE = "us-docker.pkg.dev/moz-fx-data-artifacts-prod/lookml-generator/lookml-generator:latest"
 
 
 default_args = {
@@ -150,7 +151,7 @@ with DAG(
         ],
         task_id="lookml_generator_staging",
         name="lookml-generator-staging-1",
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/lookml-generator/lookml-generator:latest",
+        image=LOOKML_GENERATOR_LATEST_IMAGE,
         dag=dag,
         env_vars={
             "HUB_REPO_URL": "git@github.com:mozilla/looker-hub.git",
@@ -183,7 +184,7 @@ with DAG(
         ],
         task_id="validate_content_spectacles",
         name="validate-content-spectacles",
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/lookml-generator/lookml-generator:latest",
+        image=LOOKML_GENERATOR_LATEST_IMAGE,
         dag=dag,
         cmds=["bash", "-x", "-c"],
         arguments=[
@@ -208,7 +209,7 @@ with DAG(
         ],
         task_id="validate_lookml_spoke_default_spectacles",
         name="validate-lookml-spoke-default-spectacles",
-        image="us-docker.pkg.dev/moz-fx-data-artifacts-prod/lookml-generator/lookml-generator:latest",
+        image=LOOKML_GENERATOR_LATEST_IMAGE,
         dag=dag,
         cmds=["bash", "-x", "-c"],
         arguments=[
