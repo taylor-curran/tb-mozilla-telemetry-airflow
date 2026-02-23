@@ -15,7 +15,7 @@ from utils.tags import Tag
 
 DISCO_TEAM_EMAIL = "disco-team@mozilla.com"
 
-DOCS= """\
+DOCS = """\
     Merino Jobs
 
     Dag for orchestrating jobs that build datasets that are used in Merino.
