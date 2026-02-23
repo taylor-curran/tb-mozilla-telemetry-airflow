@@ -6,6 +6,8 @@ from airflow.providers.cncf.kubernetes.secret import Secret
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
 
+AIRFLOW_GKE_K8S_RESOURCE_NAME = "airflow-gke-secrets"
+
 DOCS = """\
 # Looker Usage Analysis
 
@@ -40,7 +42,7 @@ looker_client_id_prod = Secret(
 looker_client_secret_prod = Secret(
     deploy_type="env",
     deploy_target="LOOKER_CLIENT_SECRET",
-    secret="airflow-gke-secrets",
+    secret=AIRFLOW_GKE_K8S_RESOURCE_NAME,
     key="probe_scraper_secret__looker_api_client_secret_prod",
 )
 looker_instance_uri = "https://mozilla.cloud.looker.com"
