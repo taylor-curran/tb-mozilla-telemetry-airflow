@@ -27,6 +27,9 @@ default_args = {
 
 tags = [Tag.ImpactTier.tier_3]
 
+# Name of the Kubernetes Secret resource (not a secret value itself)
+GKE_K8S_RESOURCE_NAME = "airflow-gke-secrets"
+
 env_vars = {
     "FXCI_ETL_BIGQUERY_PROJECT": "moz-fx-data-shared-prod",
     "FXCI_ETL_BIGQUERY_DATASET": "fxci_derived",
@@ -39,13 +42,13 @@ secrets = [
     Secret(
         deploy_type="env",
         deploy_target="FXCI_ETL_STORAGE_CREDENTIALS",
-        secret="airflow-gke-secrets",
+        secret=GKE_K8S_RESOURCE_NAME,
         key="fxci_etl_secret__gcp-credentials",
     ),
     Secret(
         deploy_type="env",
         deploy_target="FXCI_ETL_PULSE_PASSWORD",
-        secret="airflow-gke-secrets",
+        secret=GKE_K8S_RESOURCE_NAME,
         key="fxci_etl_secret__pulse-password",
     ),
 ]
