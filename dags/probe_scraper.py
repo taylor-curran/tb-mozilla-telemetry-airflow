@@ -68,22 +68,25 @@ default_args = {
 
 tags = [Tag.ImpactTier.tier_1]
 
+# Name of the Kubernetes secret resource (not a credential value)
+K8S_SECRET_NAME = "airflow-gke-secrets"
+
 aws_access_key_secret = Secret(
     deploy_type="env",
     deploy_target="AWS_ACCESS_KEY_ID",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="probe_scraper_secret__aws_access_key",
 )
 aws_secret_key_secret = Secret(
     deploy_type="env",
     deploy_target="AWS_SECRET_ACCESS_KEY",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="probe_scraper_secret__aws_secret_key",
 )
 mozilla_pipeline_schemas_secret_git_sshkey_b64 = Secret(
     deploy_type="env",
     deploy_target="MPS_SSH_KEY_BASE64",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="probe_scraper_secret__mozilla_pipeline_schemas_secret_git_sshkey_b64",
 )
 
