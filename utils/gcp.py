@@ -364,7 +364,6 @@ def bigquery_dq_check(
     gke_cluster_name="workloads-prod-v1",
     gke_namespace="default",
     docker_image=BIGQUERY_ETL_DOCKER_IMAGE,
-    date_partition_parameter="submission_date",
     is_dq_check_fail=True,
     **kwargs,
 ):
@@ -385,10 +384,6 @@ def bigquery_dq_check(
     :param str gke_cluster_name:                   GKE cluster name
     :param str gke_namespace:                      GKE cluster namespace
     :param str docker_image:                       docker image to use
-    :param Optional[str] date_partition_parameter: Parameter for indicating destination
-                                                   partition to generate, if None
-                                                   destination should be whole table
-                                                   rather than partition
     :param Dict[str, Any] kwargs:                  Additional keyword arguments for
                                                    GKEPodOperator
     :return: GKEPodOperator
