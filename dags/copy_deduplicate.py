@@ -155,7 +155,6 @@ with models.DAG(
             ("bqetl_fog_decision_support", SCHEDULE_HOUR_4),
             ("bqetl_internal_tooling", SCHEDULE_HOUR_4),
             ("bqetl_internet_outages", SCHEDULE_HOUR_7),
-            ("bqetl_messaging_system", SCHEDULE_HOUR_2),
             ("bqetl_main_summary", SCHEDULE_HOUR_2),
             ("bqetl_messaging_system", SCHEDULE_HOUR_2),
             ("bqetl_mobile_activation", SCHEDULE_HOUR_0),
