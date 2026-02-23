@@ -55,6 +55,8 @@ click the task that failed, followed by `View Log`. Here, look for `probe-scrape
 
 DEFAULT_LOOKML_GENERATOR_IMAGE_VERSION = "v1.17.0"
 
+TELEMETRY_ALERTS_EMAIL = "telemetry-alerts@mozilla.com"
+
 
 default_args = {
     "owner": "akomar@mozilla.com",
@@ -147,7 +149,7 @@ with DAG(
             ]
         ),
         email=[
-            "telemetry-alerts@mozilla.com",
+            TELEMETRY_ALERTS_EMAIL,
             "telemetry-client-dev@mozilla.com",
             "aplacitelli@mozilla.com",
             "dataops+alerts@mozilla.com",
@@ -186,7 +188,7 @@ with DAG(
                 )
             ),
             email=[
-                "telemetry-alerts@mozilla.com",
+                TELEMETRY_ALERTS_EMAIL,
                 "telemetry-client-dev@mozilla.com",
                 "aplacitelli@mozilla.com",
                 "dataops+alerts@mozilla.com",
@@ -225,7 +227,7 @@ with DAG(
             ]
         ),
         email=[
-            "telemetry-alerts@mozilla.com",
+            TELEMETRY_ALERTS_EMAIL,
             "telemetry-client-dev@mozilla.com",
             "aplacitelli@mozilla.com",
             "dataops+alerts@mozilla.com",
@@ -257,7 +259,7 @@ with DAG(
                 ]
             ),
             email=[
-                "telemetry-alerts@mozilla.com",
+                TELEMETRY_ALERTS_EMAIL,
                 "telemetry-client-dev@mozilla.com",
                 "aplacitelli@mozilla.com",
                 "dataops+alerts@mozilla.com",
@@ -305,7 +307,7 @@ with DAG(
         email=[
             "akomar@mozilla.com",
             "dataops+alerts@mozilla.com",
-            "telemetry-alerts@mozilla.com",
+            TELEMETRY_ALERTS_EMAIL,
         ],
         task_id="mozilla_schema_generator",
         name="schema-generator-1",
@@ -334,7 +336,7 @@ with DAG(
             "--bugzilla-api-key",
             "{{ var.value.bugzilla_probe_expiry_bot_api_key }}",
         ],
-        email=["akomar@mozilla.com", "telemetry-alerts@mozilla.com"],
+        email=["akomar@mozilla.com", TELEMETRY_ALERTS_EMAIL],
         secrets=[aws_access_key_secret, aws_secret_key_secret],
         dag=dag,
     )
@@ -363,7 +365,7 @@ with DAG(
             "{{ ds }}",
         ],
         owner="bewu@mozilla.com",
-        email=["bewu@mozilla.com", "telemetry-alerts@mozilla.com"],
+        email=["bewu@mozilla.com", TELEMETRY_ALERTS_EMAIL],
         secrets=[aws_access_key_secret, aws_secret_key_secret],
         dag=dag,
     )
@@ -390,7 +392,7 @@ with DAG(
         email=[
             "jrediger@mozilla.com",
             "dataops+alerts@mozilla.com",
-            "telemetry-alerts@mozilla.com",
+            TELEMETRY_ALERTS_EMAIL,
         ],
         task_id="glean_dictionary_build",
         # Glean Dictionary utilizes data from generated LookML namespaces. If Looker DAG fails we want to run the Dictionary build anyway to load updated generated schemas
