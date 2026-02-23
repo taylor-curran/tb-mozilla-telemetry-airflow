@@ -94,7 +94,6 @@ peopleteam_fetch = GKEPodOperator(
         + pull_date
         + "/",
     ],
-    # cmds=['sh', '-c', 'sleep 7200'],
     dag=dag,
 )
 
@@ -139,7 +138,6 @@ for report_name in ["hires", "terminations", "promotions", "headcount"]:
             '/usr/local/bin/run_query.py -a query -p snapshot_date={{ macros.ds_add(next_execution_date.strftime("%Y-%m-%d"), -1) }} -q '
             + query_location,
         ],
-        # cmds=['sh', '-c', 'sleep 3600'],
         dag=dag,
     )
 
