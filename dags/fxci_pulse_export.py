@@ -35,17 +35,19 @@ env_vars = {
     "FXCI_ETL_PULSE_USER": "fxci-etl",
 }
 
+AIRFLOW_GKE_K8S_RESOURCE_NAME = "airflow-gke-secrets"
+
 secrets = [
     Secret(
         deploy_type="env",
         deploy_target="FXCI_ETL_STORAGE_CREDENTIALS",
-        secret="airflow-gke-secrets",
+        secret=AIRFLOW_GKE_K8S_RESOURCE_NAME,
         key="fxci_etl_secret__gcp-credentials",
     ),
     Secret(
         deploy_type="env",
         deploy_target="FXCI_ETL_PULSE_PASSWORD",
-        secret="airflow-gke-secrets",
+        secret=AIRFLOW_GKE_K8S_RESOURCE_NAME,
         key="fxci_etl_secret__pulse-password",
     ),
 ]
