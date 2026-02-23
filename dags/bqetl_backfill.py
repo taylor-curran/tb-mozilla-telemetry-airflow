@@ -22,6 +22,59 @@ frank@mozilla.com
 """
 
 
+def _build_backfill_cmd(params):
+    """Build the backfill command list from DAG params."""
+    cmd = [
+        "bqetl",
+        "query",
+        "backfill",
+        params["table_name"],
+        "--sql_dir",
+        params["sql_dir"],
+        "--project_id",
+        params["project_id"],
+        "--start_date",
+        params["start_date"],
+        "--end_date",
+        params["end_date"],
+        "--max_rows",
+        str(params["max_rows"]),
+        "--parallelism",
+        str(params["parallelism"]),
+    ]
+
+    if destination_table := params["destination_table"]:
+        cmd.append(f"--destination_table={destination_table}")
+
+    if excludes := params["exclude"]:
+        for exclude in excludes:
+            cmd.extend(["--exclude", exclude])
+
+    if scheduling_overrides := params["scheduling_overrides"]:
+        cmd.extend(["--scheduling_overrides", json.dumps(scheduling_overrides)])
+
+    if params["dry_run"]:
+        cmd.append("--dry_run")
+
+    if params["run_checks"]:
+        cmd.append("--checks")
+    else:
+        cmd.append("--no-checks")
+
+    if params["override_retention_range_limit"]:
+        cmd.append("--override-retention-range-limit")
+
+    if billing_project := params["billing_project"]:
+        cmd.append(f"--billing-project={billing_project}")
+
+    if not all(isinstance(c, str) for c in cmd):
+        raise Exception(
+            f"All GKE arguments must be strings! Did you do something surprising to the DAG params?\nArgs: {cmd}"
+        )
+
+    return cmd
+
+
 @dag(
     dag_id="bqetl_backfill",
     schedule_interval=None,
@@ -131,59 +184,6 @@ frank@mozilla.com
         ),
     },
 )
-def _build_backfill_cmd(params):
-    """Build the backfill command list from DAG params."""
-    cmd = [
-        "bqetl",
-        "query",
-        "backfill",
-        params["table_name"],
-        "--sql_dir",
-        params["sql_dir"],
-        "--project_id",
-        params["project_id"],
-        "--start_date",
-        params["start_date"],
-        "--end_date",
-        params["end_date"],
-        "--max_rows",
-        str(params["max_rows"]),
-        "--parallelism",
-        str(params["parallelism"]),
-    ]
-
-    if destination_table := params["destination_table"]:
-        cmd.append(f"--destination_table={destination_table}")
-
-    if excludes := params["exclude"]:
-        for exclude in excludes:
-            cmd.extend(["--exclude", exclude])
-
-    if scheduling_overrides := params["scheduling_overrides"]:
-        cmd.extend(["--scheduling_overrides", json.dumps(scheduling_overrides)])
-
-    if params["dry_run"]:
-        cmd.append("--dry_run")
-
-    if params["run_checks"]:
-        cmd.append("--checks")
-    else:
-        cmd.append("--no-checks")
-
-    if params["override_retention_range_limit"]:
-        cmd.append("--override-retention-range-limit")
-
-    if billing_project := params["billing_project"]:
-        cmd.append(f"--billing-project={billing_project}")
-
-    if not all(isinstance(c, str) for c in cmd):
-        raise Exception(
-            f"All GKE arguments must be strings! Did you do something surprising to the DAG params?\nArgs: {cmd}"
-        )
-
-    return cmd
-
-
 def bqetl_backfill_dag():
     @task
     def generate_backfill_command(**context):
