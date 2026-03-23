@@ -13,7 +13,7 @@ RUN apt-get update \
 
 # Legacy docker image dependencies to be reviewed
 RUN apt-get install -y --no-install-recommends \
-    lsb-release gnupg curl && \
+    curl gnupg lsb-release && \
     CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
     echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-cli.list && \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
