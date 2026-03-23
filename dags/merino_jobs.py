@@ -22,6 +22,8 @@ DOCS = """\
 
 SUPPORTED_LANGUAGES = ["en", "fr", "de", "it", "pl"]
 
+GKE_SECRET_STORE_NAME = "airflow-gke-secrets"
+
 
 def merino_job(
     name: str, arguments: list[str], env_vars: dict[str, Any] | None = None, **kwargs
@@ -82,28 +84,28 @@ tags = [
 elasticsearch_stage_apikey_secret = Secret(
     deploy_type="env",
     deploy_target="MERINO_JOBS__WIKIPEDIA_INDEXER__ES_API_KEY",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRET_STORE_NAME,
     key="merino_elasticsearch_secret__stage_api_key",
 )
 
 elasticsearch_prod_apikey_secret = Secret(
     deploy_type="env",
     deploy_target="MERINO_JOBS__WIKIPEDIA_INDEXER__ES_API_KEY",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRET_STORE_NAME,
     key="merino_elasticsearch_secret__prod_api_key",
 )
 
 polygon_prod_apikey_secret = Secret(
     deploy_type="env",
     deploy_target="MERINO_POLYGON__API_KEY",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRET_STORE_NAME,
     key="merino_polygon_secret__prod_api_key",
 )
 
 flightaware_prod_apikey_secret = Secret(
     deploy_type="env",
     deploy_target="MERINO_FLIGHTAWARE__API_KEY",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRET_STORE_NAME,
     key="merino_flightaware_secret__prod_api_key",
 )
 
@@ -117,7 +119,7 @@ sports_prod_sportsdata_apikey_secret = Secret(
     # In this case, we follow the `settings` model
     deploy_target="MERINO_PROVIDERS__SPORTS__SPORTSDATA__API_KEY",
     # Where is the secret stored in Kubernetes?
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRET_STORE_NAME,
     # finally, what is the name of the secret in the storage (Talk to DAGENG about this value)
     key="merino_providers__sports__sportsdata_api_key",
 )
