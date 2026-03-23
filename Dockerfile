@@ -9,7 +9,8 @@ ENV AIRFLOW_HOME=$PROJECT_DIR
 USER root
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends build-essential
+  && apt-get install -y --no-install-recommends build-essential \
+  && rm -rf /var/lib/apt/lists/*
 
 # Legacy docker image dependencies to be reviewed
 RUN apt-get install -y --no-install-recommends \
