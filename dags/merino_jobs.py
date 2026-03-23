@@ -22,6 +22,8 @@ DOCS = """\
 
 SUPPORTED_LANGUAGES = ["en", "fr", "de", "it", "pl"]
 
+GKE_K8S_SECRET_STORE = "airflow-gke-secrets"  # Kubernetes secret store name, not a credential
+
 
 def merino_job(
     name: str, arguments: list[str], env_vars: dict[str, Any] | None = None, **kwargs
@@ -117,7 +119,7 @@ sports_prod_sportsdata_apikey_secret = Secret(
     # In this case, we follow the `settings` model
     deploy_target="MERINO_PROVIDERS__SPORTS__SPORTSDATA__API_KEY",
     # Where is the secret stored in Kubernetes?
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_SECRET_STORE,
     # finally, what is the name of the secret in the storage (Talk to DAGENG about this value)
     key="merino_providers__sports__sportsdata_api_key",
 )
