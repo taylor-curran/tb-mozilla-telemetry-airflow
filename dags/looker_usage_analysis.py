@@ -6,6 +6,9 @@ from airflow.providers.cncf.kubernetes.secret import Secret
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
 
+# Name of the Kubernetes Secret resource used by Airflow GKE tasks
+AIRFLOW_GKE_K8S_RESOURCE = "airflow-gke-secrets"
+
 DOCS = """\
 # Looker Usage Analysis
 
@@ -34,13 +37,13 @@ tags = [Tag.ImpactTier.tier_3]
 looker_client_id_prod = Secret(
     deploy_type="env",
     deploy_target="LOOKER_CLIENT_ID",
-    secret="airflow-gke-secrets",
+    secret=AIRFLOW_GKE_K8S_RESOURCE,
     key="probe_scraper_secret__looker_api_client_id_prod",
 )
 looker_client_secret_prod = Secret(
     deploy_type="env",
     deploy_target="LOOKER_CLIENT_SECRET",
-    secret="airflow-gke-secrets",
+    secret=AIRFLOW_GKE_K8S_RESOURCE,
     key="probe_scraper_secret__looker_api_client_secret_prod",
 )
 looker_instance_uri = "https://mozilla.cloud.looker.com"
