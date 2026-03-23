@@ -62,21 +62,23 @@ tags = [
 
 deploy_env = os.environ.get("ENVIRONMENT", "dev")
 
+K8S_SECRET_NAME = "airflow-gke-secrets"
+
 hpke_private_key = Secret(
     deploy_type="env",
     deploy_target="DAP_PRIVATE_KEY",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="dap_ads_attr_hpke_private_key_" + deploy_env,
 )
 
 bearer_token = Secret(
     deploy_type="env",
     deploy_target="DAP_BEARER_TOKEN",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="dap_ads_attr_auth_token_" + deploy_env,
 )
 
-bq_project="moz-fx-data-shar-nonprod-efed"
+bq_project = "moz-fx-data-shar-nonprod-efed"
 if deploy_env == "prod":
     bq_project = "moz-fx-data-shared-prod"
 
@@ -92,8 +94,7 @@ with DAG(
         task_id="ads_newtab_attribution",
         arguments=[
             "python",
-            "-m"
-            "ads_attribution_dap_collector.main",
+            "-mads_attribution_dap_collector.main",
             "--bq_project",
             bq_project,
             "--job_config_gcp_project={{ var.value.ads_attr_job_project_id }}",
