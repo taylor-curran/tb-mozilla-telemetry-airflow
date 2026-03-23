@@ -44,6 +44,9 @@ looker_client_secret_prod = Secret(
     key="probe_scraper_secret__looker_api_client_secret_prod",
 )
 looker_instance_uri = "https://mozilla.cloud.looker.com"
+LOOKER_UTILS_IMAGE = (
+    "us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest"
+)
 
 LOOKER_UTILS_IMAGE = "us-docker.pkg.dev/moz-fx-data-artifacts-prod/docker-etl/looker-utils:latest"
 
