@@ -119,28 +119,30 @@ default_args = {
 tags = [Tag.ImpactTier.tier_3]
 
 
+GKE_K8S_SECRET_NAME = "airflow-gke-secrets"
+
 EVERFI_INTEG_WORKDAY_USERNAME = Secret(
     deploy_type="env",
     deploy_target="EVERFI_INTEG_WORKDAY_USERNAME",
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_SECRET_NAME,
     key="EVERFI_INTEG_WORKDAY_USERNAME",
 )
 EVERFI_INTEG_WORKDAY_PASSWORD = Secret(
     deploy_type="env",
     deploy_target="EVERFI_INTEG_WORKDAY_PASSWORD",
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_SECRET_NAME,
     key="EVERFI_INTEG_WORKDAY_PASSWORD",
 )
 EVERFI_USERNAME = Secret(
     deploy_type="env",
     deploy_target="EVERFI_USERNAME",
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_SECRET_NAME,
     key="EVERFI_USERNAME",
 )
 EVERFI_PASSWORD = Secret(
     deploy_type="env",
     deploy_target="EVERFI_PASSWORD",
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_SECRET_NAME,
     key="EVERFI_PASSWORD",
 )
 

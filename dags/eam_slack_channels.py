@@ -118,18 +118,20 @@ default_args = {
 }
 tags = [Tag.ImpactTier.tier_3]
 
+# Name of the Kubernetes Secret resource (not a credential)
+GKE_SECRETS_RESOURCE_NAME = "airflow-gke-secrets"
 
 SLACK_CHANNEL_TOKEN = Secret(
     deploy_type="env",
     deploy_target="SLACK_CHANNEL_TOKEN",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRETS_RESOURCE_NAME,
     key="SLACK_CHANNEL_TOKEN",
 )
 
 slack_service_account = Secret(
     deploy_type="env",
     deploy_target="slack_service_account",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRETS_RESOURCE_NAME,
     key="slack_service_account",
 )
 
