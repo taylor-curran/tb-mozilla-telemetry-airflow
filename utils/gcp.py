@@ -1,4 +1,5 @@
 import re
+from dataclasses import dataclass
 
 from airflow import models
 from airflow.providers.cncf.kubernetes.secret import Secret
@@ -20,6 +21,18 @@ from utils.dataproc import get_dataproc_parameters
 GCP_PROJECT_ID = "moz-fx-data-airflow-gke-prod"
 DATAPROC_PROJECT_ID = "airflow-dataproc"
 BIGQUERY_ETL_DOCKER_IMAGE = "gcr.io/moz-fx-data-airflow-prod-88e0/bigquery-etl:latest"
+
+
+@dataclass
+class GKEClusterConfig:
+    """Configuration for GKE cluster connection parameters."""
+
+    gcp_conn_id: str = "google_cloud_airflow_gke"
+    project_id: str = GCP_PROJECT_ID
+    location: str = "us-west1"
+    cluster_name: str = "workloads-prod-v1"
+    namespace: str = "default"
+    docker_image: str = BIGQUERY_ETL_DOCKER_IMAGE
 
 
 def export_to_parquet(
@@ -281,12 +294,7 @@ def bigquery_etl_copy_deduplicate(
     priority="INTERACTIVE",
     hourly=False,
     slices=None,
-    gcp_conn_id="google_cloud_airflow_gke",
-    gke_project_id=GCP_PROJECT_ID,
-    gke_location="us-west1",
-    gke_cluster_name="workloads-prod-v1",
-    gke_namespace="default",
-    docker_image=BIGQUERY_ETL_DOCKER_IMAGE,
+    gke_config=None,
     **kwargs,
 ):
     """
@@ -303,17 +311,14 @@ def bigquery_etl_copy_deduplicate(
     :param str priority:             BigQuery query priority to use, must be BATCH or INTERACTIVE
     :param bool hourly:              Alias for --slices=24
     :param int slices:               Number of time-based slices to deduplicate in, rather than for whole days at once
-    :param str gcp_conn_id:          Airflow connection id for GCP access
-    :param str gke_project_id:       GKE cluster project id
-    :param str gke_location:         GKE cluster location
-    :param str gke_cluster_name:     GKE cluster name
-    :param str gke_namespace:        GKE cluster namespace
-    :param str docker_image:         docker image to use
+    :param GKEClusterConfig gke_config: GKE cluster configuration; defaults to GKEClusterConfig()
     :param Dict[str, Any] kwargs:    Additional keyword arguments for
                                      GKEPodOperator
 
     :return: GKEPodOperator
     """
+    if gke_config is None:
+        gke_config = GKEClusterConfig()
     kwargs["name"] = kwargs.get("name", task_id.replace("_", "-"))
     table_qualifiers = []
     if only_tables:
@@ -332,12 +337,12 @@ def bigquery_etl_copy_deduplicate(
     return GKEPodOperator(
         task_id=task_id,
         reattach_on_restart=True,
-        gcp_conn_id=gcp_conn_id,
-        project_id=gke_project_id,
-        location=gke_location,
-        cluster_name=gke_cluster_name,
-        namespace=gke_namespace,
-        image=docker_image,
+        gcp_conn_id=gke_config.gcp_conn_id,
+        project_id=gke_config.project_id,
+        location=gke_config.location,
+        cluster_name=gke_config.cluster_name,
+        namespace=gke_config.namespace,
+        image=gke_config.docker_image,
         arguments=["script/bqetl", "copy_deduplicate"]
         + ["--project-id=" + target_project_id]
         + (["--billing-projects", *list(billing_projects)] if billing_projects else [])
