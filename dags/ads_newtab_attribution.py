@@ -7,6 +7,8 @@ from airflow.providers.cncf.kubernetes.secret import Secret
 from operators.gcp_container_operator import GKEPodOperator
 from utils.tags import Tag
 
+GKE_K8S_STORE_NAME = "airflow-gke-secrets"
+
 DOCS = """
 ### NewTab Attribution Collector
 
@@ -65,14 +67,14 @@ deploy_env = os.environ.get("ENVIRONMENT", "dev")
 hpke_private_key = Secret(
     deploy_type="env",
     deploy_target="DAP_PRIVATE_KEY",
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_STORE_NAME,
     key="dap_ads_attr_hpke_private_key_" + deploy_env,
 )
 
 bearer_token = Secret(
     deploy_type="env",
     deploy_target="DAP_BEARER_TOKEN",
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_STORE_NAME,
     key="dap_ads_attr_auth_token_" + deploy_env,
 )
 
