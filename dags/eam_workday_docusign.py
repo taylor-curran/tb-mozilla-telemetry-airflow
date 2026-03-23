@@ -119,22 +119,24 @@ default_args = {
 tags = [Tag.ImpactTier.tier_3]
 
 
+GKE_SECRETS_NAME = "airflow-gke-secrets"
+
 docusign_jwt = Secret(
     deploy_type="env",
     deploy_target="docusign_jwt",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRETS_NAME,
     key="docusign_jwt",
 )
 DOCUSIGN_INTEG_WORKDAY_USERNAME = Secret(
     deploy_type="env",
     deploy_target="DOCUSIGN_INTEG_WORKDAY_USERNAME",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRETS_NAME,
     key="DOCUSIGN_INTEG_WORKDAY_USERNAME",
 )
 DOCUSIGN_INTEG_WORKDAY_PASSWORD = Secret(
     deploy_type="env",
     deploy_target="DOCUSIGN_INTEG_WORKDAY_PASSWORD",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRETS_NAME,
     key="DOCUSIGN_INTEG_WORKDAY_PASSWORD",
 )
 
