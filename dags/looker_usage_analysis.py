@@ -31,16 +31,18 @@ default_args = {
 
 tags = [Tag.ImpactTier.tier_3]
 
+AIRFLOW_GKE_SECRET_NAME = "airflow-gke-secrets"
+
 looker_client_id_prod = Secret(
     deploy_type="env",
     deploy_target="LOOKER_CLIENT_ID",
-    secret="airflow-gke-secrets",
+    secret=AIRFLOW_GKE_SECRET_NAME,
     key="probe_scraper_secret__looker_api_client_id_prod",
 )
 looker_client_secret_prod = Secret(
     deploy_type="env",
     deploy_target="LOOKER_CLIENT_SECRET",
-    secret="airflow-gke-secrets",
+    secret=AIRFLOW_GKE_SECRET_NAME,
     key="probe_scraper_secret__looker_api_client_secret_prod",
 )
 looker_instance_uri = "https://mozilla.cloud.looker.com"
