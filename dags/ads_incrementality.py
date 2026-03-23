@@ -51,17 +51,21 @@ tags = [
 
 deploy_env = os.environ.get("ENVIRONMENT", "dev")
 
+KUBERNETES_SECRET_RESOURCE = os.environ.get(
+    "AIRFLOW_K8S_SECRET_NAME", "airflow-gke-secrets"
+)
+
 hpke_private_key = Secret(
     deploy_type="env",
     deploy_target="DAP_PRIVATE_KEY",
-    secret="airflow-gke-secrets",
+    secret=KUBERNETES_SECRET_RESOURCE,
     key="dap_ads_incr_hpke_private_key_" + deploy_env,
 )
 
 bearer_token = Secret(
     deploy_type="env",
     deploy_target="DAP_BEARER_TOKEN",
-    secret="airflow-gke-secrets",
+    secret=KUBERNETES_SECRET_RESOURCE,
     key="dap_ads_incr_auth_token_" + deploy_env,
 )
 
