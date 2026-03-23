@@ -13,23 +13,24 @@ BUCKET = "moz-fx-data-bq-people-workday-tripactions-export"
 # This image was manually copied from moz-fx-data-composer-prod to moz-fx-data-artifacts-prod by mducharme
 IMAGE = "us-docker.pkg.dev/moz-fx-data-artifacts-prod/legacy-images/integrations_workday_to_tripactions:latest"
 PROJECT = "moz-fx-data-bq-people"
+K8S_SECRET_NAME = "airflow-gke-secrets"
 
 WORKDAY_USERNAME = Secret(
     deploy_type="env",
     deploy_target="WORKDAY_USERNAME",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="EVERFI_INTEG_WORKDAY_USERNAME",
 )
 WORKDAY_PASSWORD = Secret(
     deploy_type="env",
     deploy_target="WORKDAY_PASSWORD",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="EVERFI_INTEG_WORKDAY_PASSWORD",
 )
 WORKDAY_QUERY_URI = Secret(
     deploy_type="env",
     deploy_target="WORKDAY_QUERY_URI",
-    secret="airflow-gke-secrets",
+    secret=K8S_SECRET_NAME,
     key="WORKDAY_QUERY_URI",
 )
 WORKDAY_BASE_URL = "https://services1.myworkday.com"
