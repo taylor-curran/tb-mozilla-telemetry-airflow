@@ -42,17 +42,19 @@ tags = [
 
 every_fifteen_minutes = "*/15 * * * *"
 
+GKE_K8S_NAMESPACE_STORE = "airflow-gke-secrets"
+
 bugzilla_token = Secret(
     deploy_type="env",
     deploy_target="BUGZILLA_API_KEY",
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_NAMESPACE_STORE,
     key="webcompat_kb_secret__bugzilla_api_key",
 )
 
 github_token = Secret(
     deploy_type="env",
     deploy_target="GH_TOKEN",
-    secret="airflow-gke-secrets",
+    secret=GKE_K8S_NAMESPACE_STORE,
     key="webcompat_kb_secret__gh_token",
 )
 
