@@ -36,10 +36,12 @@ default_args = {
 dag_name = "adm_dma_export"
 tags = [Tag.ImpactTier.tier_3]
 
+GKE_SECRETS_NAME = "airflow-gke-secrets"
+
 adm_sftp_secret = Secret(
     deploy_type="env",
     deploy_target="SFTP_PASSWORD",
-    secret="airflow-gke-secrets",
+    secret=GKE_SECRETS_NAME,
     key="adm_export_secret__sftp_password",
 )
 
